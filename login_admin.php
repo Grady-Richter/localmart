@@ -62,14 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <main class="login-wrap">
     <div class="login-card">
-
-      <!-- Role indicator -->
-      <p style="text-align:center;font-size:12px;font-weight:600;color:#374151;
-                background:#e5e7eb;border-radius:20px;padding:4px 14px;
-                display:inline-block;margin:0 auto 12px;width:auto;">
-        🔒 Login sebagai Admin
-      </p>
-
+      
       <p class="login-card__title">Admin Panel</p>
 
       <?php if ($error): ?>

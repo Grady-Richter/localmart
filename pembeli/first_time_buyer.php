@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="photo-upload">
               <input type="file" name="foto_profil" accept="image/*"
                      onchange="previewPhoto(this)" />
-              <img id="photoPreview" src="../images/assets/default-profile.png" alt="Default Profile" style="width:80%;height:80%;object-fit:cover;margin-top:24px;" />
+              <img id="photoPreview" src="../images/assets/default-profile.png" alt="Default Profile" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />
             </label>
           </div>
 
@@ -148,12 +148,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = e => {
-          const p = document.getElementById('photoPreview');
-          p.innerHTML = '';
+          const old = document.getElementById('photoPreview');
           const img = document.createElement('img');
+          img.id = 'photoPreview';
           img.src = e.target.result;
           img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;';
-          p.appendChild(img);
+          old.replaceWith(img);
         };
         reader.readAsDataURL(input.files[0]);
       }

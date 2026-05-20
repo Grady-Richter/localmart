@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      src="../<?= htmlspecialchars($profil['foto_profil']) ?>"
                      style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />
               <?php else: ?>
-                <img id="photoPreview" src="../images/assets/default-profile.png" alt="Default Profile" style="width:80%;height:80%;object-fit:cover;margin-top:24px;" />
+                <img id="photoPreview" src="../images/assets/default-profile.png" alt="Default Profile" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />
               <?php endif; ?>
             </label>
           </div>

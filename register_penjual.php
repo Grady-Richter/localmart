@@ -58,14 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <main class="reg-wrap">
     <div class="reg-card">
-
-      <!-- Role indicator -->
-      <p style="text-align:center;font-size:12px;font-weight:600;color:#065f46;
-                background:#d1fae5;border-radius:20px;padding:4px 14px;
-                display:inline-block;margin:0 auto 12px;width:auto;">
-        Daftar sebagai Penjual
-      </p>
-
+      
       <p class="reg-card__title">Buat Akun</p>
 
       <?php if ($error): ?>
@@ -99,14 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </form>
 
       <p class="reg-footer">
-        Sudah memiliki akun? <a href="login_penjual.php">Login!</a>
+        Sudah memiliki akun? <a href="login_penjual.php">Login disini!</a>
       </p>
-
-      <!-- Switch role hint -->
-      <p style="text-align:center;font-size:12px;color:#9ca3af;margin-top:10px;">
-        Ingin berbelanja? <a href="register_pembeli.php" style="color:#78350f;">Daftar sebagai Pembeli</a>
-      </p>
-
     </div>
   </main>
 

@@ -73,13 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <main class="login-wrap">
     <div class="login-card">
 
-      <!-- Role indicator -->
-      <p style="text-align:center;font-size:12px;font-weight:600;color:#78350f;
-                background:#fef3c7;border-radius:20px;padding:4px 14px;
-                display:inline-block;margin:0 auto 12px;width:auto;">
-        Login sebagai Pembeli
-      </p>
-
       <p class="login-card__title">Selamat Datang!</p>
 
       <?php if ($success): ?>
@@ -113,12 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </form>
 
       <p class="login-footer">
-        Belum memiliki akun? <a href="register_pembeli.php">Daftar sebagai Pembeli!</a>
+        Belum memiliki akun? <a href="register_pembeli.php">Daftar sekarang!</a>
       </p>
 
       <!-- Switch role hint -->
       <p style="text-align:center;font-size:12px;color:#9ca3af;margin-top:10px;">
-        Ingin berjualan? <a href="login_penjual.php" style="color:#78350f;">Login sebagai Penjual</a>
+        Ingin menjadi Mitra? <a href="register_penjual.php" style="color:#78350f;">Daftar sekarang!</a>
       </p>
 
     </div>

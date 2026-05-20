@@ -117,7 +117,7 @@ $filtered = ($filter === 'semua')
     <!-- Shop cards -->
     <?php if (empty($filtered)): ?>
       <div class="empty-state">
-        <span>🏪</span>
+        <span><img src="../images/assets/not-found.png" alt="Empty State" style="height: 100px;;width:100px;"/></span>
         Tidak ada toko dengan status ini.
       </div>
     <?php else: ?>
@@ -142,17 +142,17 @@ $filtered = ($filter === 'semua')
 
         <!-- Info — matches Figma text layout -->
         <div class="shop-card__info">
-          <h3><?= htmlspecialchars($shop['nama_toko']) ?></h3>
-          <p>Penjual: <?= htmlspecialchars($shop['username']) ?>
-Alamat: <?= htmlspecialchars($shop['alamat_toko'] ?? '-') ?>
-Kota: <?= htmlspecialchars($shop['kota'] ?? '-') ?>
-<?php if (!empty($shop['deskripsi_toko'])): ?>Deskripsi: <?= htmlspecialchars($shop['deskripsi_toko']) ?>
+          <h3><?= htmlspecialchars($shop['nama_toko']) ?></h3><br>
+          <p>Penjual: <?= htmlspecialchars($shop['username']) ?><br>
+Alamat: <?= htmlspecialchars($shop['alamat_toko'] ?? '-') ?><br>
+Kota: <?= htmlspecialchars($shop['kota'] ?? '-') ?><br>
+<?php if (!empty($shop['deskripsi_toko'])): ?>Deskripsi: <?= htmlspecialchars($shop['deskripsi_toko']) ?><br>
 <?php endif; ?>Didaftarkan: <?= date('d M Y, H:i', strtotime($shop['created_at'])) ?></p>
 
           <span class="shop-card__status status-<?= $sstatus ?>">
-            <?php if ($sstatus === 'menunggu'): ?>⏳ Menunggu
-            <?php elseif ($sstatus === 'diterima'): ?>✅ Diterima
-            <?php else: ?>❌ Ditolak<?php endif; ?>
+            <?php if ($sstatus === 'menunggu'): ?>Menunggu
+            <?php elseif ($sstatus === 'diterima'): ?>Diterima
+            <?php else: ?>Ditolak<?php endif; ?>
           </span>
 
           <?php if ($sstatus === 'ditolak' && !empty($shop['info_verifikasi'])): ?>
@@ -170,7 +170,7 @@ Kota: <?= htmlspecialchars($shop['kota'] ?? '-') ?>
               <input type="hidden" name="action"  value="terima" />
               <input type="hidden" name="id_toko" value="<?= $sid ?>" />
               <button type="submit" class="btn btn-accept" style="width:100%;"
-                      onclick="return confirm('Terima toko ini?')">✅ Terima</button>
+                      onclick="return confirm('Terima toko ini?')">Terima</button>
             </form>
             <form method="POST" action="dashboard_admin.php?filter=<?= htmlspecialchars($filter) ?>"
                   class="reject-form">
@@ -179,7 +179,7 @@ Kota: <?= htmlspecialchars($shop['kota'] ?? '-') ?>
               <textarea name="alasan" class="reject-textarea"
                         placeholder="Alasan penolakan (opsional)..."></textarea>
               <button type="submit" class="btn btn-reject"
-                      onclick="return confirm('Tolak toko ini?')">❌ Tolak</button>
+                      onclick="return confirm('Tolak toko ini?')">Tolak</button>
             </form>
 
           <?php elseif ($sstatus === 'diterima'): ?>
@@ -190,7 +190,7 @@ Kota: <?= htmlspecialchars($shop['kota'] ?? '-') ?>
               <textarea name="alasan" class="reject-textarea"
                         placeholder="Alasan pencabutan persetujuan..."></textarea>
               <button type="submit" class="btn btn-reopen" style="width:100%;"
-                      onclick="return confirm('Cabut persetujuan toko ini?')">🔄 Cabut &amp; Tolak</button>
+                      onclick="return confirm('Cabut persetujuan toko ini?')">Cabut &amp; Tolak</button>
             </form>
 
           <?php elseif ($sstatus === 'ditolak'): ?>
@@ -198,7 +198,7 @@ Kota: <?= htmlspecialchars($shop['kota'] ?? '-') ?>
               <input type="hidden" name="action"  value="terima" />
               <input type="hidden" name="id_toko" value="<?= $sid ?>" />
               <button type="submit" class="btn btn-accept" style="width:100%;"
-                      onclick="return confirm('Terima toko ini sekarang?')">✅ Terima Sekarang</button>
+                      onclick="return confirm('Terima toko ini sekarang?')">Terima Sekarang</button>
             </form>
           <?php endif; ?>
         </div>

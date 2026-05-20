@@ -152,13 +152,13 @@ function buildUrl(array $overrides = []): string {
                  placeholder="Cari nama toko atau kota..."
                  value="<?= htmlspecialchars($search) ?>" />
           <button type="submit"
-                  style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;">🔍</button>
+                  style="background:none;border:none;cursor:pointer;padding:0;"><img src="../images/assets/search-icon.png" alt="Search" style="width:24px;height:24px;" /></button>
         </div>
       </form>
 
       <!-- Category filter -->
       <div class="filter-row" style="margin-bottom:16px;">
-        <span class="filter-row__label">Kategori:</span>
+        <span class="filter-row__label"style="color:#753b18">Kategori:</span>
         <a href="<?= buildUrl(['kategori' => '', 'page' => '1']) ?>"
            class="pill <?= $kategori === '' ? 'active' : '' ?>"
            style="text-decoration:none;">Semua</a>
