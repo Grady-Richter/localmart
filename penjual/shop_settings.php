@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        class="preview-img" alt="Logo Toko" />
                 </span>
               <?php else: ?>
-                <span class="img-upload-box__icon" id="logoPreview">🖼️</span>
+                <img src="../images/assets/store-profile.png" alt="Default Store" class="preview-img" id="logoPreview" />
               <?php endif; ?>
               <span class="img-upload-box__label">Klik untuk ganti logo</span>
             </label>

@@ -95,7 +95,7 @@ $produk = $produkStmt->fetchAll();
                src="../<?= htmlspecialchars($toko['logo_toko']) ?>"
                alt="Logo Toko" />
         <?php else: ?>
-          <div class="store-info-bar__img-placeholder">🏪</div>
+          <img class="store-info-bar__img" src="../images/assets/store-profile.png" alt="Default Store" />
         <?php endif; ?>
         <div class="store-info-bar__details">
           <p class="store-info-bar__name"><?= htmlspecialchars($toko['nama_toko']) ?></p>

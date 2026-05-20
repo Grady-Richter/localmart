@@ -202,7 +202,7 @@ function buildUrl(array $overrides = []): string {
                  src="../<?= htmlspecialchars($shop['logo_toko']) ?>"
                  alt="<?= htmlspecialchars($shop['nama_toko']) ?>" />
           <?php else: ?>
-            <div class="list-card__thumb-placeholder">🏪</div>
+            <img class="list-card__thumb" src="../images/assets/store-profile.png" alt="Default Store" />
           <?php endif; ?>
 
           <div class="list-card__info">

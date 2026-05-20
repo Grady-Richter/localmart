@@ -78,10 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </p>
       <?php endif; ?>
 
-      <form action="login_admin.php" method="POST">
+      <form action="login_admin.php" method="POST" autocomplete="off">
         <div class="form-group">
           <label class="form-label" for="username">Username</label>
-          <input class="form-input" type="text" id="username" name="username"
+          <input class="form-input" type="text" id="username" name="username" autocomplete="username"
                  placeholder="Masukkan Username Admin"
                  value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required />
         </div>

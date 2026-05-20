@@ -9,7 +9,12 @@ if (isset($_SESSION['ID_user'])) {
     exit;
 }
 
-$error = '';
+$error   = '';
+$success = '';
+
+if (isset($_GET['registered'])) {
+    $success = 'Akun berhasil dibuat! Silakan login.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
@@ -87,16 +92,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <p class="login-card__title">Selamat Datang!</p>
 
+      <?php if ($success): ?>
+        <p style="color:#16a34a;font-size:14px;text-align:center;
+                  background:#dcfce7;border-radius:10px;padding:10px;margin-bottom:12px;">
+           <?= htmlspecialchars($success) ?>
+        </p>
+      <?php endif; ?>
+
       <?php if ($error): ?>
         <p style="color:#dc2626;font-size:14px;text-align:center;margin-bottom:12px;">
           <?= htmlspecialchars($error) ?>
         </p>
       <?php endif; ?>
 
-      <form action="login_penjual.php" method="POST">
+      <form action="login_penjual.php" method="POST" autocomplete="off">
         <div class="form-group">
           <label class="form-label" for="username">Username</label>
-          <input class="form-input" type="text" id="username" name="username"
+          <input class="form-input" type="text" id="username" name="username" autocomplete="username"
                  placeholder="Masukkan Username"
                  value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required />
         </div>

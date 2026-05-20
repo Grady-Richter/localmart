@@ -1,19 +1,5 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.site-header {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: var(--header-h);
-  background: var(--orange-btn);
-  border-bottom: 4px solid var(--brown-dark);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  z-index: 100;
-}
-
 :root {
   --brown-dark:  #561f00;
   --brown-mid:   #78350f;
@@ -35,8 +21,9 @@ body {
 }
 
 .site-header {
-  position: relative;
-  z-index: 10;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: var(--orange-btn);
   border-bottom: 4px solid var(--brown-dark);
   box-shadow: 0 4px 4px rgba(0,0,0,0.25);

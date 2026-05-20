@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="form-label">Logo Toko</label>
             <label class="img-upload-box">
               <input type="file" name="logo_toko" accept="image/*" />
-              <span class="img-upload-box__icon">🖼️</span>
+              <img src="../images/assets/store-profile.png" alt="Default Store" class="preview-img" id="logoPreview" />
               <span class="img-upload-box__label">Tambahkan Gambar!</span>
             </label>
           </div>

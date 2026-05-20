@@ -82,10 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="page-content">
       <div class="content-card">
-        <h2 style="font-size:clamp(18px,2.5vw,26px);font-weight:600;color:#f97316;text-align:center;margin-bottom:24px;text-shadow:0 4px 4px rgba(0,0,0,.25);">
+        <p style="text-align:center;font-size:clamp(14px,1.6vw,18px);">Sebelumnya,</p>
+        <h2 style="font-size:clamp(18px,2.5vw,26px);font-weight:600;color:#f97316;text-align:center;margin-bottom:24px;text-shadow:0 0 4px rgba(0,0,0,.25);">
           Beritahu Kami Lebih Lanjut!
         </h2>
-        <p style="text-align:center;margin-bottom:20px;font-size:clamp(14px,1.6vw,18px);">Sebelumnya,</p>
 
         <?php if ($error): ?>
           <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="photo-upload">
               <input type="file" name="foto_profil" accept="image/*"
                      onchange="previewPhoto(this)" />
-              <div class="photo-upload__icon" id="photoPreview">📷</div>
+              <img id="photoPreview" src="../images/assets/default-profile.png" alt="Default Profile" style="width:80%;height:80%;object-fit:cover;margin-top:24px;" />
             </label>
           </div>
 

@@ -42,9 +42,17 @@ if ($status === 'diterima'
     $produkRow = $own->fetch();
 
     if ($produkRow) {
+        // Delete image file if it exists
         if ($produkRow['gambar_produk'] && file_exists('../' . $produkRow['gambar_produk'])) {
             unlink('../' . $produkRow['gambar_produk']);
         }
+
+        // Must delete related pembelian rows first — foreign key fk_pembelian_produk
+        // prevents deleting a product that has order history referencing it.
+        $delOrders = $pdo->prepare('DELETE FROM pembelian WHERE ID_produk = ?');
+        $delOrders->execute([$id_produk]);
+
+        // Now safe to delete the product itself
         $del = $pdo->prepare('DELETE FROM produk WHERE ID_produk = ? AND ID_toko = ?');
         $del->execute([$id_produk, $ID_toko]);
         $flash = 'Produk berhasil dihapus.';
@@ -154,7 +162,7 @@ if ($status === 'diterima') {
                src="../<?= htmlspecialchars($toko['logo_toko']) ?>"
                alt="Logo Toko" />
         <?php else: ?>
-          <div class="store-info-bar__img-placeholder">🏪</div>
+          <img class="store-info-bar__img" src="../images/assets/store-profile.png" alt="Default Store" />
         <?php endif; ?>
         <div class="store-info-bar__details">
           <p class="store-info-bar__name"><?= htmlspecialchars($toko['nama_toko']) ?></p>
@@ -244,7 +252,7 @@ if ($status === 'diterima') {
 
     <script>
       function confirmDelete(id) {
-        if (confirm('Yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan.')) {
+        if (confirm('Yakin ingin menghapus produk ini?\nRiwayat pesanan untuk produk ini juga akan ikut dihapus.\nTindakan ini tidak dapat dibatalkan.')) {
           document.getElementById('deleteProductId').value = id;
           document.getElementById('deleteForm').submit();
         }

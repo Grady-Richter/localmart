@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                      alt="Foto Profil"
                      style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" />
               <?php else: ?>
-                <div class="photo-upload__icon" id="photoPreview">📷</div>
+                <img id="photoPreview" src="../images/assets/default-profile.png" alt="Default Profile" style="width:80%;height:80%;object-fit:cover;margin-top:24px;" />
               <?php endif; ?>
             </label>
           </div>

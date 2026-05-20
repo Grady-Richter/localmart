@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span class="profile-photo-label">Foto Profil</span>
             <label class="photo-upload">
               <input type="file" name="foto_profil" accept="image/*" />
-              <div class="photo-upload__icon">📷</div>
+              <img src="../images/assets/default-profile.png" alt="Default Profile" style="width:80%;height:80%;object-fit:cover;margin-top:24px;" />
             </label>
           </div>
 

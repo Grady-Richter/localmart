@@ -31,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare('INSERT INTO users (role, username, password) VALUES ("pembeli", ?, ?)');
             $stmt->execute([$username, $hash]);
-            $success = 'Akun Pembeli berhasil dibuat! Silakan login.';
+            header('Location: login_pembeli.php?registered=1');
+            exit;
         }
     }
 }
@@ -80,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </p>
       <?php endif; ?>
 
-      <form action="register_pembeli.php" method="POST">
+      <form action="register_pembeli.php" method="POST" autocomplete="off">
         <div class="form-group">
           <label class="form-label" for="username">Username</label>
-          <input class="form-input" type="text" id="username" name="username"
+          <input class="form-input" type="text" id="username" name="username" autocomplete="username"
                  placeholder="Masukkan Username"
                  value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required />
         </div>
