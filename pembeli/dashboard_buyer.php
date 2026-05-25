@@ -1,9 +1,9 @@
 <?php
 // pembeli/dashboard_buyer.php
-// Main buyer dashboard. Lists verified shops from the DB with:
-//  - Search by shop name or city
-//  - Category filter (shows shops that carry that category)
-//  - 10 shops per page with pagination
+// Redesigned buyer dashboard with:
+//  - Top 4 popular products (by total orders)
+//  - Top 4 best stores (by total transaction amount)
+//  - Shop list with search + dynamic category dropdown + pagination
 session_start();
 require_once '../includes/koneksi.php';
 
@@ -18,15 +18,44 @@ $kategori = trim($_GET['kategori'] ?? '');
 $page     = max(1, (int)($_GET['page'] ?? 1));
 $perPage  = 10;
 
-$validKategori = ['makanan', 'minuman', 'perlengkapan mandi', 'perlengkapan dapur'];
-$kategoriLabel = [
-    'makanan'            => 'Makanan',
-    'minuman'            => 'Minuman',
-    'perlengkapan mandi' => 'Perlengkapan Mandi',
-    'perlengkapan dapur' => 'Perlengkapan Dapur',
-];
+// ── Top 4 Popular Products ────────────────────────────────────
+$popularStmt = $pdo->query(
+    "SELECT p.ID_produk, p.nama_produk, p.gambar_produk, p.harga_produk,
+            COALESCE(SUM(pb.jumlah), 0) AS total_terjual
+     FROM produk p
+     JOIN profil_toko pt ON pt.ID_toko = p.ID_toko
+     LEFT JOIN pembelian pb ON pb.ID_produk = p.ID_produk
+     WHERE pt.status_verifikasi = 'diterima'
+     GROUP BY p.ID_produk
+     ORDER BY total_terjual DESC
+     LIMIT 4"
+);
+$popularProducts = $popularStmt->fetchAll();
 
-// ── Build WHERE ───────────────────────────────────────────────
+// ── Top 4 Best Stores by transaction total ────────────────────
+$bestStoreStmt = $pdo->query(
+    "SELECT pt.ID_toko, pt.nama_toko, pt.logo_toko,
+            COALESCE(SUM(pb.total_harga), 0) AS total_transaksi
+     FROM profil_toko pt
+     LEFT JOIN pembelian pb ON pb.ID_toko = pt.ID_toko
+     WHERE pt.status_verifikasi = 'diterima'
+     GROUP BY pt.ID_toko
+     ORDER BY total_transaksi DESC
+     LIMIT 4"
+);
+$bestStores = $bestStoreStmt->fetchAll();
+
+// ── Dynamic categories for dropdown ──────────────────────────
+$catStmt = $pdo->query(
+    "SELECT DISTINCT p.kategori
+     FROM produk p
+     JOIN profil_toko pt ON pt.ID_toko = p.ID_toko
+     WHERE pt.status_verifikasi = 'diterima'
+     ORDER BY p.kategori ASC"
+);
+$allKategori = $catStmt->fetchAll(PDO::FETCH_COLUMN);
+
+// ── Build WHERE for shop list ─────────────────────────────────
 $params = [];
 $where  = ['pt.status_verifikasi = "diterima"'];
 
@@ -36,14 +65,14 @@ if ($search !== '') {
     $params[] = '%' . $search . '%';
 }
 
-if ($kategori && in_array($kategori, $validKategori)) {
+if ($kategori !== '') {
     $where[]  = 'EXISTS (SELECT 1 FROM produk p WHERE p.ID_toko = pt.ID_toko AND p.kategori = ?)';
     $params[] = $kategori;
 }
 
 $whereSql = 'WHERE ' . implode(' AND ', $where);
 
-// ── Count total for pagination ────────────────────────────────
+// ── Count + paginate ──────────────────────────────────────────
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM profil_toko pt $whereSql");
 $countStmt->execute($params);
 $totalShops = (int)$countStmt->fetchColumn();
@@ -51,41 +80,35 @@ $totalPages = max(1, (int)ceil($totalShops / $perPage));
 $page       = min($page, $totalPages);
 $offset     = ($page - 1) * $perPage;
 
-// ── Fetch page of shops ───────────────────────────────────────
 $shopStmt = $pdo->prepare(
     "SELECT pt.* FROM profil_toko pt $whereSql ORDER BY pt.nama_toko ASC LIMIT $perPage OFFSET $offset"
 );
 $shopStmt->execute($params);
 $shops = $shopStmt->fetchAll();
 
-// Fetch categories per shop in one query
+// Fetch categories per shop
 $shopCategories = [];
 if (!empty($shops)) {
     $shopIds      = array_column($shops, 'ID_toko');
     $placeholders = implode(',', array_fill(0, count($shopIds), '?'));
-    $catStmt      = $pdo->prepare(
+    $catRows      = $pdo->prepare(
         "SELECT ID_toko, kategori FROM produk WHERE ID_toko IN ($placeholders) GROUP BY ID_toko, kategori"
     );
-    $catStmt->execute($shopIds);
-    foreach ($catStmt->fetchAll() as $row) {
+    $catRows->execute($shopIds);
+    foreach ($catRows->fetchAll() as $row) {
         $shopCategories[$row['ID_toko']][] = $row['kategori'];
     }
 }
 
-// ── URL helper (preserves other params) ──────────────────────
+// ── URL helper ────────────────────────────────────────────────
 function buildUrl(array $overrides = []): string {
-    // Start from current GET params, then apply overrides.
-    // Overrides are applied unconditionally — including empty strings —
-    // so that passing ['kategori' => ''] correctly clears the filter.
     $base = [
         'search'   => $_GET['search']   ?? '',
         'kategori' => $_GET['kategori'] ?? '',
         'page'     => (string)($_GET['page'] ?? '1'),
     ];
     $merged = array_merge($base, array_map('strval', $overrides));
-    // Remove keys with empty values so the URL stays clean
     $merged = array_filter($merged, fn($v) => $v !== '');
-    // Drop page=1 from URL to keep it clean
     if (($merged['page'] ?? '') === '1') unset($merged['page']);
     return 'dashboard_buyer.php' . ($merged ? '?' . http_build_query($merged) : '');
 }
@@ -99,32 +122,128 @@ function buildUrl(array $overrides = []): string {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <link href="../css/pembeli.css" rel="stylesheet" />
   <style>
-    .pagination {
+    /* ── Popular / Best stores row ── */
+    .featured-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .featured-panel {
+      background: #fff;
+      border: 5px solid rgba(81,40,6,0.6);
+      border-radius: 0 0 20px 20px;
+      padding: 16px;
+    }
+
+    .featured-items {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .featured-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      position: relative;
+    }
+
+    .featured-item__rank {
+      position: absolute;
+      top: -4px; left: -4px;
+      background: var(--brown-mid);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 6px;
+      z-index: 1;
+    }
+
+    .featured-item__img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 2px solid rgba(81,40,6,0.4);
+    }
+
+    .featured-item__name {
+      font-size: clamp(10px, 1.1vw, 13px);
+      font-weight: 400;
+      color: #374151;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    /* ── Daftar Toko heading with dropdown ── */
+    .daftar-heading {
+      background: var(--brown-mid);
+      border: 5px solid rgba(81,40,6,0.6);
+      border-radius: 30px;
+      padding: 16px 24px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 24px;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-md);
     }
-    .pagination a, .pagination span {
+
+    .daftar-heading h2 {
+      font-size: clamp(18px, 2vw, 26px);
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .kategori-select {
+      background: rgba(255,255,255,0.85);
+      border: 3px solid rgba(255,255,255,0.6);
+      border-radius: 30px;
+      padding: 8px 36px 8px 18px;
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(12px, 1.3vw, 15px);
+      font-weight: 500;
+      color: #374151;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23374151'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-color: rgba(255,255,255,0.85);
+      min-width: 160px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    /* ── btn-view arrow style from Figma ── */
+    .btn-view-arrow {
+      background: var(--orange-btn);
+      border: 3px solid rgba(81,40,6,0.4);
+      border-radius: 30px;
+      color: var(--brown-dark);
+      padding: 10px 22px;
+      font-size: clamp(13px, 1.5vw, 16px);
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      min-width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-      border: 2px solid transparent;
-      transition: all 0.15s;
-      padding: 0 10px;
+      gap: 6px;
+      white-space: nowrap;
     }
-    .pagination a         { background:#fff; border-color:rgba(81,40,6,0.3); color:#78350f; }
-    .pagination a:hover   { background:#f97316; border-color:#f97316; color:#fff; }
-    .pagination .current  { background:#78350f; border-color:#78350f; color:#fff; font-weight:700; }
-    .pagination .disabled { background:#f3f4f6; border-color:#e5e7eb; color:#9ca3af; cursor:default; }
+    .btn-view-arrow:hover { filter: brightness(1.08); }
+
+    @media (max-width: 640px) {
+      .featured-row { grid-template-columns: 1fr; }
+      .featured-items { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body>
@@ -132,7 +251,7 @@ function buildUrl(array $overrides = []): string {
   <div class="page-wrapper">
 
     <header class="site-header">
-      <a href="../landing_page.html" class="site-header__logo">
+      <a href="../landing_page.php" class="site-header__logo">
         <div class="site-header__logo-box"><span>LocalMart</span></div>
       </a>
       <nav class="site-header__nav">
@@ -147,37 +266,103 @@ function buildUrl(array $overrides = []): string {
       <!-- Search -->
       <form action="dashboard_buyer.php" method="GET">
         <input type="hidden" name="kategori" value="<?= htmlspecialchars($kategori) ?>" />
-        <div class="search-bar">
+        <div class="search-bar" style="margin-bottom:20px;">
           <input type="text" name="search"
                  placeholder="Cari nama toko atau kota..."
                  value="<?= htmlspecialchars($search) ?>" />
           <button type="submit"
-                  style="background:none;border:none;cursor:pointer;padding:0;"><img src="../images/assets/search-icon.png" alt="Search" style="width:24px;height:24px;" /></button>
+                  style="background:none;border:none;cursor:pointer;padding:0;"><img src="../images/assets/search-icon.png" alt="Search" style="width:23px;height:23px;" /></button>
         </div>
       </form>
 
-      <!-- Category filter -->
-      <div class="filter-row" style="margin-bottom:16px;">
-        <span class="filter-row__label"style="color:#753b18">Kategori:</span>
-        <a href="<?= buildUrl(['kategori' => '', 'page' => '1']) ?>"
-           class="pill <?= $kategori === '' ? 'active' : '' ?>"
-           style="text-decoration:none;">Semua</a>
-        <?php foreach ($validKategori as $k): ?>
-          <a href="<?= buildUrl(['kategori' => $k, 'page' => '1']) ?>"
-             class="pill <?= $kategori === $k ? 'active' : '' ?>"
-             style="text-decoration:none;">
-            <?= htmlspecialchars($kategoriLabel[$k]) ?>
-          </a>
-        <?php endforeach; ?>
-      </div>
+      <!-- ══ Popular Products + Best Stores ══ -->
+      <div class="featured-row">
 
-      <!-- Heading + count -->
-      <div class="section-heading" style="margin-bottom:16px;
-           display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <!-- Produk Terpopuler -->
+        <div>
+          <div class="section-heading" style="border-radius:30px 30px 0 0;margin-bottom:0;">
+            <h2>Produk Terpopuler</h2>
+          </div>
+          <div class="featured-panel">
+            <?php if (empty($popularProducts)): ?>
+              <p style="color:#9ca3af;font-size:13px;text-align:center;padding:16px 0;">
+                Belum ada data produk.
+              </p>
+            <?php else: ?>
+            <div class="featured-items">
+              <?php foreach ($popularProducts as $i => $prod): ?>
+              <a href="view_product.php?id=<?= $prod['ID_produk'] ?>" class="featured-item">
+                <span class="featured-item__rank">#<?= $i + 1 ?></span>
+                <?php if (!empty($prod['gambar_produk']) && file_exists('../' . $prod['gambar_produk'])): ?>
+                  <img class="featured-item__img"
+                       src="../<?= htmlspecialchars($prod['gambar_produk']) ?>"
+                       alt="<?= htmlspecialchars($prod['nama_produk']) ?>" />
+                <?php else: ?>
+                  <img class="featured-item__img"
+                       src="../images/assets/store-profile.png"
+                       alt="Produk" />
+                <?php endif; ?>
+                <span class="featured-item__name">
+                  <?= htmlspecialchars($prod['nama_produk']) ?>
+                </span>
+              </a>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <!-- Toko Terbaik -->
+        <div>
+          <div class="section-heading" style="border-radius:30px 30px 0 0;margin-bottom:0;">
+            <h2>Toko Terbaik</h2>
+          </div>
+          <div class="featured-panel">
+            <?php if (empty($bestStores)): ?>
+              <p style="color:#9ca3af;font-size:13px;text-align:center;padding:16px 0;">
+                Belum ada data toko.
+              </p>
+            <?php else: ?>
+            <div class="featured-items">
+              <?php foreach ($bestStores as $i => $store): ?>
+              <a href="view_shop.php?id=<?= $store['ID_toko'] ?>" class="featured-item">
+                <span class="featured-item__rank">#<?= $i + 1 ?></span>
+                <?php if (!empty($store['logo_toko']) && file_exists('../' . $store['logo_toko'])): ?>
+                  <img class="featured-item__img"
+                       src="../<?= htmlspecialchars($store['logo_toko']) ?>"
+                       alt="<?= htmlspecialchars($store['nama_toko']) ?>" />
+                <?php else: ?>
+                  <img class="featured-item__img"
+                       src="../images/assets/store-profile.png"
+                       alt="Toko" />
+                <?php endif; ?>
+                <span class="featured-item__name">
+                  <?= htmlspecialchars($store['nama_toko']) ?>
+                </span>
+              </a>
+              <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+          </div>
+        </div>
+
+      </div><!-- end featured-row -->
+
+      <!-- ══ Daftar Toko heading + category dropdown ══ -->
+      <div class="daftar-heading">
         <h2>Daftar Toko</h2>
-        <span style="font-size:13px;color:#fde8c8;font-weight:300;">
-          <?= $totalShops ?> toko ditemukan
-        </span>
+        <form method="GET" action="dashboard_buyer.php" style="margin:0;">
+          <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>" />
+          <select name="kategori" class="kategori-select" onchange="this.form.submit()">
+            <option value="">Kategori</option>
+            <?php foreach ($allKategori as $k): ?>
+              <option value="<?= htmlspecialchars($k) ?>"
+                      <?= $kategori === $k ? 'selected' : '' ?>>
+                <?= htmlspecialchars(ucfirst($k)) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </form>
       </div>
 
       <!-- Shop list -->
@@ -202,7 +387,9 @@ function buildUrl(array $overrides = []): string {
                  src="../<?= htmlspecialchars($shop['logo_toko']) ?>"
                  alt="<?= htmlspecialchars($shop['nama_toko']) ?>" />
           <?php else: ?>
-            <img class="list-card__thumb" src="../images/assets/store-profile.png" alt="Default Store" />
+            <img class="list-card__thumb"
+                 src="../images/assets/store-profile.png"
+                 alt="Default Store" />
           <?php endif; ?>
 
           <div class="list-card__info">
@@ -212,22 +399,23 @@ function buildUrl(array $overrides = []): string {
             <?php if (!empty($shopCategories[$shop['ID_toko']])): ?>
             <div class="category-pills" style="margin-top:8px;">
               <?php foreach ($shopCategories[$shop['ID_toko']] as $kat): ?>
-                <span class="pill"><?= htmlspecialchars($kategoriLabel[$kat] ?? $kat) ?></span>
+                <span class="pill"><?= htmlspecialchars(ucfirst($kat)) ?></span>
               <?php endforeach; ?>
             </div>
             <?php endif; ?>
           </div>
 
           <div class="list-card__action">
-            <a href="view_shop.php?id=<?= $shop['ID_toko'] ?>" class="btn-view">Lihat</a>
+            <a href="view_shop.php?id=<?= $shop['ID_toko'] ?>" class="btn-view-arrow">
+              Lihat →
+            </a>
           </div>
         </div>
         <?php endforeach; ?>
 
-        <!-- Pagination — only shown when more than 10 shops -->
+        <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
-
           <?php if ($page > 1): ?>
             <a href="<?= buildUrl(['page' => (string)($page - 1)]) ?>">← Prev</a>
           <?php else: ?>
@@ -237,12 +425,8 @@ function buildUrl(array $overrides = []): string {
           <?php
           $start = max(1, $page - 2);
           $end   = min($totalPages, $page + 2);
-          if ($start > 1): ?>
-            <a href="<?= buildUrl(['page' => '1']) ?>">1</a>
-          <?php endif;
-          if ($start > 2): ?>
-            <span class="disabled">…</span>
-          <?php endif;
+          if ($start > 1): ?><a href="<?= buildUrl(['page' => '1']) ?>">1</a><?php endif;
+          if ($start > 2): ?><span class="disabled">…</span><?php endif;
           for ($i = $start; $i <= $end; $i++):
             if ($i === $page): ?>
               <span class="current"><?= $i ?></span>
@@ -250,19 +434,15 @@ function buildUrl(array $overrides = []): string {
               <a href="<?= buildUrl(['page' => (string)$i]) ?>"><?= $i ?></a>
             <?php endif;
           endfor;
-          if ($end < $totalPages - 1): ?>
-            <span class="disabled">…</span>
-          <?php endif;
-          if ($end < $totalPages): ?>
-            <a href="<?= buildUrl(['page' => (string)$totalPages]) ?>"><?= $totalPages ?></a>
-          <?php endif; ?>
+          if ($end < $totalPages - 1): ?><span class="disabled">…</span><?php endif;
+          if ($end < $totalPages): ?><a href="<?= buildUrl(['page' => (string)$totalPages]) ?>"><?= $totalPages ?></a><?php endif;
+          ?>
 
           <?php if ($page < $totalPages): ?>
             <a href="<?= buildUrl(['page' => (string)($page + 1)]) ?>">Next →</a>
           <?php else: ?>
             <span class="disabled">Next →</span>
           <?php endif; ?>
-
         </div>
         <?php endif; ?>
 

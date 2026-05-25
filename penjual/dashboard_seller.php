@@ -68,8 +68,28 @@ $kategoriLabel = [
     'perlengkapan dapur' => 'Perlengkapan Dapur',
 ];
 
+// Sort order from GET param
+$sortOptions = [
+    'terbaru'   => 'p.created_at DESC',
+    'stok'      => 'p.stok_produk DESC',
+    'terjual'   => 'total_terjual DESC',
+    'harga_asc' => 'p.harga_produk ASC',
+    'harga_desc'=> 'p.harga_produk DESC',
+];
+$sort    = $_GET['sort'] ?? 'terbaru';
+$orderBy = $sortOptions[$sort] ?? $sortOptions['terbaru'];
+
 if ($status === 'diterima') {
-    $produkStmt = $pdo->prepare('SELECT * FROM produk WHERE ID_toko = ? ORDER BY created_at DESC');
+    // LEFT JOIN pembelian to get total sold per product
+    $produkStmt = $pdo->prepare(
+        "SELECT p.*,
+                COALESCE(SUM(pb.jumlah), 0) AS total_terjual
+         FROM produk p
+         LEFT JOIN pembelian pb ON pb.ID_produk = p.ID_produk
+         WHERE p.ID_toko = ?
+         GROUP BY p.ID_produk
+         ORDER BY $orderBy"
+    );
     $produkStmt->execute([$ID_toko]);
     $daftarProduk = $produkStmt->fetchAll();
 }
@@ -172,11 +192,21 @@ if ($status === 'diterima') {
         <a href="shop_settings.php" class="btn btn-secondary" style="flex-shrink:0;">⚙ Edit Toko</a>
       </div>
 
-      <!-- Product List Heading + Add Button -->
+      <!-- Product List Heading + Sort + Add Button -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
         <div class="section-heading" style="margin-bottom:0;flex:1;">
           <h2>Daftar Produk</h2>
         </div>
+        <!-- Sort dropdown -->
+        <form method="GET" action="dashboard_seller.php" style="margin:0;">
+          <select name="sort" class="filter-select" onchange="this.form.submit()">
+            <option value="terbaru"    <?= $sort==='terbaru'    ?'selected':'' ?>>Urut berdasarkan..</option>
+            <option value="terjual"    <?= $sort==='terjual'    ?'selected':'' ?>>Penjualan Tertinggi</option>
+            <option value="stok"       <?= $sort==='stok'       ?'selected':'' ?>>Stok Terbanyak</option>
+            <option value="harga_desc" <?= $sort==='harga_desc' ?'selected':'' ?>>Harga Tertinggi</option>
+            <option value="harga_asc"  <?= $sort==='harga_asc'  ?'selected':'' ?>>Harga Terendah</option>
+          </select>
+        </form>
         <a href="add_product.php" class="btn btn-primary" style="white-space:nowrap;">+ Tambah Produk</a>
       </div>
 
@@ -187,19 +217,20 @@ if ($status === 'diterima') {
           <thead>
             <tr>
               <th>No</th>
-              <th>Gambar</th>
               <th>Nama Produk</th>
               <th>Deskripsi</th>
               <th>Harga</th>
               <th>Stok</th>
+              <th>Total Terjual</th>
               <th>Kategori</th>
+              <th>Gambar</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             <?php if (empty($daftarProduk)): ?>
               <tr>
-                <td colspan="8" style="padding:24px;color:#999;">
+                <td colspan="9" style="padding:24px;color:#999;">
                   Belum ada produk. <a href="add_product.php">Tambah sekarang!</a>
                 </td>
               </tr>
@@ -207,22 +238,26 @@ if ($status === 'diterima') {
               <?php foreach ($daftarProduk as $i => $produk): ?>
               <tr>
                 <td><?= $i + 1 ?></td>
+                <td><?= htmlspecialchars($produk['nama_produk']) ?></td>
+                <td style="max-width:180px;white-space:normal;">
+                  <?= htmlspecialchars($produk['deskripsi_produk'] ?? '-') ?>
+                </td>
+                <td>Rp. <?= number_format($produk['harga_produk'], 0, ',', '.') ?></td>
+                <td><?= (int)$produk['stok_produk'] ?></td>
+                <td style="font-weight:600;color:<?= (int)$produk['total_terjual'] > 0 ? '#065f46' : '#9ca3af' ?>;">
+                  <?= (int)$produk['total_terjual'] ?>
+                </td>
+                <td><?= htmlspecialchars($kategoriLabel[$produk['kategori']] ?? $produk['kategori']) ?></td>
                 <td>
                   <?php if ($produk['gambar_produk'] && file_exists('../' . $produk['gambar_produk'])): ?>
                     <img src="../<?= htmlspecialchars($produk['gambar_produk']) ?>"
                          alt="Produk"
-                         style="width:56px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #78350f;" />
+                         style="width:56px;height:56px;object-fit:cover;border-radius:10px;border:2px solid #78350f;" />
                   <?php else: ?>
-                    <div style="width:56px;height:44px;background:#e5c9a0;border-radius:8px;border:1px solid #78350f;display:inline-flex;align-items:center;justify-content:center;font-size:20px;">📦</div>
+                    <img src="../images/assets/store-profile.png" alt="Produk"
+                         style="width:56px;height:56px;object-fit:cover;border-radius:10px;border:2px solid #78350f;" />
                   <?php endif; ?>
                 </td>
-                <td><?= htmlspecialchars($produk['nama_produk']) ?></td>
-                <td style="max-width:200px;white-space:normal;">
-                  <?= htmlspecialchars($produk['deskripsi_produk'] ?? '-') ?>
-                </td>
-                <td>Rp <?= number_format($produk['harga_produk'], 0, ',', '.') ?></td>
-                <td><?= (int)$produk['stok_produk'] ?></td>
-                <td><?= htmlspecialchars($kategoriLabel[$produk['kategori']] ?? $produk['kategori']) ?></td>
                 <td>
                   <div style="display:flex;gap:6px;justify-content:center;">
                     <a href="edit_product.php?id=<?= $produk['ID_produk'] ?>"

@@ -104,6 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <div class="page-wrapper">
 
+
+
+
     <header class="site-header">
       <a href="../landing_page.html" class="site-header__logo">
         <div class="site-header__logo-box"><span>LocalMart</span></div>
@@ -116,6 +119,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
 
     <main class="page-content">
+
+      <?php if ($success): ?>
+        <div class="alert alert-success" style="margin-bottom:16px;">
+          <?= htmlspecialchars($success) ?> —
+          <a href="orders_buyer.php"
+             style="color:#065f46;font-weight:700;text-decoration:underline;">
+            Lihat pesanan saya
+          </a>
+        </div>
+      <?php endif; ?>
 
       <a href="view_shop.php?id=<?= $produk['ID_toko'] ?>" class="btn-back">Kembali</a>
 
@@ -141,8 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <div class="content-panel">
 
-        <?php if ($error):   ?><div class="alert alert-error"  style="margin-bottom:16px;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-        <?php if ($success): ?><div class="alert alert-success" style="margin-bottom:16px;"><?= htmlspecialchars($success) ?></div><?php endif; ?>
+        <?php if ($error): ?><div class="alert alert-error" style="margin-bottom:16px;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
         <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">
 
@@ -250,6 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Set initial state
     toggleAlamat(document.getElementById('metode').value);
   </script>
+
 
 </body>
 </html>

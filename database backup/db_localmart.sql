@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 20, 2026 at 09:27 AM
+-- Generation Time: May 25, 2026 at 01:26 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -48,8 +48,21 @@ CREATE TABLE `pembelian` (
 
 INSERT INTO `pembelian` (`ID_pembelian`, `ID_user`, `ID_produk`, `ID_toko`, `tanggal_pembelian`, `nama_produk`, `jumlah`, `harga_satuan`, `status_pembelian`, `metode_pengambilan`, `total_harga`, `alamat_pengiriman`) VALUES
 (1, 11, 10, 7, '2026-05-16 09:43:55', 'Cupcake', 3, 30000.00, 'selesai', 'diambil', 90000.00, NULL),
-(2, 11, 7, 1, '2026-05-17 16:29:44', 'Sawit', 5, 2650.00, 'selesai', 'diantar', 13250.00, 'Johor baharu'),
-(3, 11, 7, 1, '2026-05-17 16:29:50', 'Sawit', 1, 2650.00, 'selesai', 'diantar', 2650.00, 'Johor baharu');
+(4, 1, 16, 10, '2026-05-21 07:52:56', 'beras 1kg', 3, 16000.00, 'dibatalkan', 'diantar', 48000.00, 'boro, tanggulangin'),
+(5, 1, 16, 10, '2026-05-21 07:53:20', 'beras 1kg', 1, 16000.00, 'selesai', 'diantar', 16000.00, 'boro, tanggulangin'),
+(6, 1, 16, 10, '2026-05-21 07:53:25', 'beras 1kg', 1, 16000.00, 'dibatalkan', 'diantar', 16000.00, 'boro, tanggulangin'),
+(7, 11, 10, 7, '2026-05-21 11:12:04', 'Cupcake', 2, 30000.00, 'selesai', 'diantar', 60000.00, 'Pondok Sidokare Asri, Blok H-7'),
+(8, 11, 10, 7, '2026-05-21 11:12:43', 'Cupcake', 1, 30000.00, 'selesai', 'diantar', 30000.00, 'Pondok Sidokare Asri, Blok H-7'),
+(9, 11, 16, 10, '2026-05-21 11:16:22', 'beras 1kg', 5, 16000.00, 'selesai', 'diambil', 80000.00, NULL),
+(10, 1, 9, 7, '2026-05-21 13:25:46', 'Teh Matcha', 5, 70000.00, 'selesai', 'diambil', 350000.00, NULL),
+(11, 1, 17, 11, '2026-05-21 13:34:34', 'BERAS ASLI NGAWUR', 6, 67000.00, 'selesai', 'diantar', 402000.00, 'Mars'),
+(12, 1, 16, 10, '2026-05-21 14:34:42', 'beras 1kg', 3, 16000.00, 'selesai', 'diambil', 48000.00, NULL),
+(13, 1, 18, 12, '2026-05-21 14:43:32', 'Air Mineral 200L', 4, 3500.00, 'selesai', 'diambil', 14000.00, NULL),
+(14, 1, 17, 11, '2026-05-23 08:22:07', 'BERAS ASLI NGAWUR', 3, 67000.00, 'pending', 'diantar', 201000.00, 'Bekasi'),
+(15, 1, 16, 10, '2026-05-23 08:59:21', 'beras 1kg', 6, 16000.00, 'pending', 'diantar', 96000.00, 'Bekasi'),
+(16, 1, 16, 10, '2026-05-23 09:03:58', 'beras 1kg', 6, 16000.00, 'pending', 'diantar', 96000.00, 'Bekasi'),
+(17, 1, 16, 10, '2026-05-23 09:04:07', 'beras 1kg', 3, 16000.00, 'pending', 'diambil', 48000.00, NULL),
+(18, 1, 16, 10, '2026-05-23 09:04:11', 'beras 1kg', 3, 16000.00, 'pending', 'diambil', 48000.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -65,7 +78,7 @@ CREATE TABLE `produk` (
   `gambar_produk` varchar(255) DEFAULT NULL,
   `stok_produk` int(11) NOT NULL DEFAULT 0,
   `harga_produk` decimal(15,2) NOT NULL,
-  `kategori` enum('makanan','minuman','perlengkapan mandi','perlengkapan dapur') NOT NULL,
+  `kategori` varchar(100) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -75,16 +88,14 @@ CREATE TABLE `produk` (
 
 INSERT INTO `produk` (`ID_produk`, `ID_toko`, `nama_produk`, `deskripsi_produk`, `gambar_produk`, `stok_produk`, `harga_produk`, `kategori`, `created_at`) VALUES
 (1, 1, 'Aqua Botol', 'Air Mineral 600ml', 'uploads/produk/produk_1_1776425626.jpg', 36, 3500.00, 'minuman', '2026-04-17 18:33:46'),
-(4, 3, 'MUWANI DATABASE', 'MUWANI BERKWALITAS TINGGI', 'uploads/produk/produk_3_1776640420.png', 9, 1900000.00, 'minuman', '2026-04-20 06:13:40'),
 (6, 6, 'Anak gw', 'Susah bet dibesarin kakinya patah 3 kali', 'uploads/produk/produk_6_1777863663.jpg', 1, 2999999900.00, 'perlengkapan mandi', '2026-05-04 10:00:48'),
-(7, 1, 'Sawit', 'Nyawit ni orang', 'uploads/produk/produk_1_1777864393.png', 981, 2650.00, 'makanan', '2026-05-04 10:13:13'),
-(8, 7, 'Lucky Charm', 'Jimat yang memastikan latihanmu 100% berhasil!', 'uploads/produk/produk_7_1778467660.png', 7, 40000.00, 'perlengkapan dapur', '2026-05-11 09:47:40'),
-(9, 7, 'Teh Matcha', 'Minuman yang pahit, namun menyegarkanmu sampai bugar!', 'uploads/produk/produk_7_1778467843.png', 10, 70000.00, 'minuman', '2026-05-11 09:50:33'),
-(10, 7, 'Cupcake', 'Cupcake yang manis, membuatmu bahagia!', 'uploads/produk/produk_7_1778467891.jpg', 3, 30000.00, 'makanan', '2026-05-11 09:51:31'),
+(9, 7, 'Teh Matcha', 'Minuman yang pahit, namun menyegarkanmu sampai bugar!', 'uploads/produk/produk_7_1778467843.png', 5, 70000.00, 'minuman', '2026-05-11 09:50:33'),
+(10, 7, 'Cupcake', 'Cupcake yang manis, membuatmu bahagia!', 'uploads/produk/produk_7_1778467891.jpg', 0, 30000.00, 'makanan', '2026-05-11 09:51:31'),
 (11, 7, 'Vita 20', 'Minuman suplemen yang membangkitkan semangatmu!', 'uploads/produk/produk_7_1778467988.png', 14, 35000.00, 'minuman', '2026-05-11 09:53:08'),
 (13, 6, 'Anak gw yang satunya', 'Minusnya punya asma', 'uploads/produk/produk_6_1778484224.jpg', 1, 4000000.00, 'perlengkapan dapur', '2026-05-11 14:23:44'),
-(14, 4, 'Carats Eceran', 'Carats per biji', 'uploads/produk/produk_4_1778484449.png', 100000, 5750.00, 'makanan', '2026-05-11 14:27:29'),
-(15, 1, 'tonio', 'fvfv', 'uploads/produk/produk_1_1779261943.jpg', 1, 9900.00, 'makanan', '2026-05-20 14:25:43');
+(16, 10, 'beras 1kg', 'Beras Sintanola 1kg', 'uploads/produk/produk_10_1779324630.jpeg', 19, 16000.00, 'makanan', '2026-05-21 07:47:49'),
+(17, 11, 'BERAS ASLI NGAWUR', 'Beras Sangat Wangi, Bisa Buat Cuci, Jemur, Gosok Gigi, Gooning, Makan', 'uploads/produk/produk_11_1779345236.jpeg', 60, 67000.00, 'makanan', '2026-05-21 13:33:56'),
+(18, 12, 'Air Mineral 200L', 'Air Mineral', NULL, 56, 3500.00, 'minuman', '2026-05-21 14:41:47');
 
 -- --------------------------------------------------------
 
@@ -111,13 +122,12 @@ CREATE TABLE `profil_toko` (
 
 INSERT INTO `profil_toko` (`ID_toko`, `ID_user`, `nama_toko`, `deskripsi_toko`, `logo_toko`, `alamat_toko`, `kota`, `created_at`, `status_verifikasi`, `info_verifikasi`) VALUES
 (1, 2, 'Toko Madura Stego', 'Testing', 'uploads/logo_toko/shop_2_1776425434.jpg', 'Sidokare Asri Blok I-3', 'Sidoarjo', '2026-04-17 18:30:34', 'diterima', NULL),
-(2, 3, 'Alhamdulillah Store', 'testing 2', 'uploads/logo_toko/shop_3_1776431008.jpg', 'Sidokare Asri Blok I-5', 'Sidoarjo', '2026-04-17 20:03:28', 'diterima', NULL),
-(3, 4, 'AmbaMart', 'Jual Semuanya Terutaman MUWANI', 'uploads/logo_toko/shop_4_1776640336.jpg', 'jalan muwani H-9', 'Ngawi', '2026-04-20 06:12:16', 'ditolak', NULL),
-(4, 5, 'Umart', 'Umazing', 'uploads/logo_toko/shop_5_1776665555.jpg', 'Jalan Jaran No-9', 'Sidoarjo', '2026-04-20 13:12:35', 'diterima', NULL),
-(5, 7, 'Abcdefg', 'abcd', NULL, 'Jalan Jaran No-9', 'Sidoarjo', '2026-04-27 08:53:21', 'diterima', NULL),
 (6, 9, 'Umamart', 'Ecwipse Firts The Rezt Nower', 'uploads/logo_toko/shop_9_1777876290.png', 'Jalan Jaran No-9', 'Tokyo', '2026-05-04 09:56:56', 'diterima', NULL),
 (7, 12, 'Fukukitaru Lucky Shop', 'hungya', 'uploads/logo_toko/shop_12_1778467475.png', 'Jalan Jaran No-12', 'Tokyo', '2026-05-11 09:44:35', 'diterima', NULL),
-(8, 14, 'Starry Nocturne', NULL, NULL, 'Tokyo Tracen Academy', 'Tokyo', '2026-05-16 10:10:18', 'diterima', NULL);
+(9, 21, 'Test', NULL, NULL, 'Test', 'Test', '2026-05-21 07:34:13', 'menunggu', NULL),
+(10, 22, 'Toko madura barokah', NULL, NULL, 'Jalan raya, Ngaban, Tanggulangin', 'Sidoarjo', '2026-05-21 07:43:39', 'diterima', NULL),
+(11, 23, 'Toko', 'Toko Sangat GG Dan Sangat Gokil', 'uploads/logo_toko/shop_23_1779345052.jpg', 'Bulan', 'Ngawur', '2026-05-21 13:30:52', 'diterima', NULL),
+(12, 24, 'Toko Madura', 'Toko Madura', NULL, 'Sidokare Asri Blok I-3', 'Sidoarjo', '2026-05-21 14:39:11', 'diterima', NULL);
 
 -- --------------------------------------------------------
 
@@ -139,11 +149,13 @@ CREATE TABLE `profil_user_pembeli` (
 --
 
 INSERT INTO `profil_user_pembeli` (`ID_user`, `foto_profil`, `nomor_telepon`, `alamat`, `kota`, `kode_pos`) VALUES
+(1, 'uploads/profil_pembeli/buyer_1_1779279380.jpg', '81237869270', 'Sidokare Asri Blok H-7', 'Sidoarjo', '61214'),
 (11, 'uploads/profil_pembeli/buyer_11_1778466207.jpg', '+6281237869270', 'Pondok Sidokare Asri, Blok H-7, RT 46 RW 13', 'Sidoarjo', '61214'),
 (13, NULL, '+62 888-999-000', 'Tokyo Tracen Academy', 'Tokyo', '69420'),
 (15, 'uploads/profil_pembeli/buyer_15_1779161770.jpg', '0404-1996-2005', 'Tokyo Tracen Academy', 'Tokyo', '12345'),
 (17, 'uploads/profil_pembeli/buyer_17_1779250644.jpg', '+6281237869270', 'Pondok Sidokare Asri, Blok H-7, RT 46 RW 13', 'SIDOARJO', '61214'),
-(18, NULL, '+6281237869270', 'Pondok Sidokare Asri, Blok H-7, RT 46 RW 13', 'SIDOARJO', '61214');
+(18, NULL, '+6281237869270', 'Pondok Sidokare Asri, Blok H-7, RT 46 RW 13', 'SIDOARJO', '61214'),
+(20, NULL, '6787656898667896', 'ngawi', 'ngawi', '6567865678');
 
 -- --------------------------------------------------------
 
@@ -164,14 +176,15 @@ CREATE TABLE `profil_user_penjual` (
 
 INSERT INTO `profil_user_penjual` (`ID_user`, `foto_profil`, `nomor_telepon`, `alamat`) VALUES
 (2, 'uploads/profil_penjual/seller_2_1777874622.png', '81237869270', 'Sidokare Asri Blok H-7'),
-(3, 'uploads/profil_penjual/seller_3_1776431026.jpg', '83244674200', 'Sidokare Asri Blok P-3'),
 (4, 'uploads/profil_penjual/seller_4_1776640261.jpg', '081237869270', 'Pondok Sidokare Asri Blok H-7'),
-(5, NULL, '777777', 'babsbbs'),
-(7, 'uploads/profil_penjual/seller_7_1777254700.jpg', '777777', 'Sidokare Asri Blok H-7'),
 (9, 'uploads/profil_penjual/seller_9_1777863308.jpg', '81166667777', 'Tokyo Tracen Academy'),
 (12, 'uploads/profil_penjual/seller_12_1778467315.jpg', '77777777777', 'Tokyo Tracen Academy'),
 (14, NULL, '+62-123-1996-2004', 'Tokyo Tracen Academy'),
-(19, NULL, '81237869270', 'babsbbs');
+(19, NULL, '81237869270', 'babsbbs'),
+(21, NULL, '777777', 'abcd'),
+(22, NULL, '085136844584', 'Jalan Raya Ngaban, Tanggulangin'),
+(23, 'uploads/profil_penjual/seller_23_1779344957.webp', '85772840578', 'Planet Namek'),
+(24, NULL, '9039023904932049', 'Sidoarjo');
 
 -- --------------------------------------------------------
 
@@ -194,10 +207,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`ID_user`, `role`, `username`, `password`, `created_at`) VALUES
 (1, 'pembeli', 'UserPembeli', '$2y$10$XV4OMV0a.n9KXgrUHP709ux6.shhaN3zj2mdJ6pEp0C8Cqt7kLGpu', '2026-04-17 14:16:55'),
 (2, 'penjual', 'UserPenjual', '$2y$10$c0E683kK7r0v9uS4/UKBpu3Yizbhu0REpwsL3OHsRjq2aAl6jLMu2', '2026-04-17 14:17:30'),
-(3, 'penjual', 'UserPenjual2', '$2y$10$0rRYzug7jgsaCzI1/wT.tugrR9iiF2cW6anunvDLrm28D5i68z9z6', '2026-04-17 20:01:51'),
 (4, 'penjual', 'helloagain', '$2y$10$ikH9L.Yn2MQFrdkDgdfxK.u1F9b7gwUkzfklyDgOw1blD26.pu7Pu', '2026-04-20 06:09:37'),
-(5, 'penjual', 'testing2', '$2y$10$P9KIqdHwAMBoulsMQmm/JOAi0ulMgPTm3PyA7dj2ML6XdCFykBXFe', '2026-04-20 13:04:45'),
-(7, 'penjual', 'UserPenjual3', '$2y$10$mfB5p4PetjPmdHYZk1maTOAalpeZjWb8LeuN.OMYoRtDN.4NDZFjO', '2026-04-27 08:51:05'),
 (8, 'admin', 'UserAdmin', '$2y$10$2GeiDwnvp/xGtSQx8C2olOeFCc.q2MD9oTuP5gsZsFi0jteGt1eG.', '2026-05-04 08:19:26'),
 (9, 'penjual', 'Bapak_Rudolf', '$2y$10$Ezwa6pccBqKrshNkKT42R.Vtr0wJjsL.JUi9kEhN6qH6RVlPpOvG2', '2026-05-04 09:53:18'),
 (11, 'pembeli', 'TMOperaO', '$2y$10$mdMO.um/Tzfb/GrjJM3w/u79zLG7R2HY7nAldszkReb2/eClzMzXm', '2026-05-11 09:22:58'),
@@ -208,7 +218,12 @@ INSERT INTO `users` (`ID_user`, `role`, `username`, `password`, `created_at`) VA
 (16, 'penjual', 'TwinTurbo', '$2y$10$VGX4HHQa9WGVGF7djtWV4uV1izIouP4qDjbU5Y5HZ/5YAaG0qXlgW', '2026-05-20 05:32:57'),
 (17, 'pembeli', 'March 7th', '$2y$10$8FN8.25cW9AlBiloLt7DxO1tK.VS8wo9QgNDYbThs/KV3FEGEwBFG', '2026-05-20 11:16:13'),
 (18, 'pembeli', 'penyuka_sawit', '$2y$10$J595NXddrZmbtTu.DrRqp.NP6/yCgj1e0ifTbbDIFUu3cH5Eu/bwC', '2026-05-20 11:24:34'),
-(19, 'penjual', 'penyuka_gorong_gorong', '$2y$10$7OMoFR0mfuwt7M1jElXMhea3tORgMREZfo3Kh8jmp5KZDr/FPEtnm', '2026-05-20 11:27:33');
+(19, 'penjual', 'penyuka_gorong_gorong', '$2y$10$7OMoFR0mfuwt7M1jElXMhea3tORgMREZfo3Kh8jmp5KZDr/FPEtnm', '2026-05-20 11:27:33'),
+(20, 'pembeli', 'zidhan', '$2y$10$wEt/6N.W7umjJ2LM6FyD3u1AfN1LWsxNE8NxycAtWS88N6FIeTe5a', '2026-05-21 07:05:58'),
+(21, 'penjual', 'PenjualHandal', '$2y$10$r/7gKf4kdYhNeyHnFxyj8u7F1a/ys8S7KjISGv/tsIg9TJ7zLRSse', '2026-05-21 07:07:14'),
+(22, 'penjual', 'ZidhanDaDann', '$2y$10$.vTbF9txTlB7GY3EXWJJc.s5Hfg9J5XAruabm8katTHntxniuVV2W', '2026-05-21 07:40:09'),
+(23, 'penjual', 'Username', '$2y$10$gzVQpXliRF43TTMDTx1w/eqUf8UJkAe/sPMjbPbAa9GmFLwUo3sIu', '2026-05-21 13:28:17'),
+(24, 'penjual', 'Penjualtoko', '$2y$10$T/Zmx.wIS.LOA4WoSX3aIe.wOJv5JoKpHg5xpAWZYJaU9iDGCvWte', '2026-05-21 14:37:52');
 
 --
 -- Indexes for dumped tables
@@ -263,25 +278,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `pembelian`
 --
 ALTER TABLE `pembelian`
-  MODIFY `ID_pembelian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ID_pembelian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `produk`
 --
 ALTER TABLE `produk`
-  MODIFY `ID_produk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `ID_produk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `profil_toko`
 --
 ALTER TABLE `profil_toko`
-  MODIFY `ID_toko` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `ID_toko` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `ID_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `ID_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- Constraints for dumped tables

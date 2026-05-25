@@ -502,6 +502,46 @@ html, body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ─── SETTINGS BUTTON (gear icon in store info bar) ─────────── */
+.btn-settings {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; height: 44px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.btn-settings:hover { background: rgba(255,255,255,0.3); }
+
+/* ─── FILTER SELECT (sort dropdown) ────────────────────────── */
+.filter-select {
+  background: rgba(255,255,255,0.7);
+  border: 5px solid rgba(117,117,117,0.6);
+  border-radius: 30px;
+  padding: 10px 40px 10px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(12px, 1.4vw, 15px);
+  font-weight: 500;
+  color: var(--text-muted);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='10'%3E%3Cpath d='M0 0l7 10 7-10z' fill='%23979797'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-color: rgba(255,255,255,0.7);
+  min-width: 200px;
+}
+.filter-select:focus { border-color: rgba(81,40,6,0.4); }
+
 /* ─── RESPONSIVE ────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .page-content { padding: calc(var(--header-h) + 16px) 16px 16px; }

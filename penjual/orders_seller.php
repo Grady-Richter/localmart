@@ -3,7 +3,7 @@
 // Shows the seller's incoming active orders with an inline status dropdown,
 // and a read-only order history section below.
 //
-// Status flows:
+// Status flow:
 //   diantar  : pending → diproses → dikirim → selesai / dibatalkan
 //   diambil  : pending → diproses → selesai / dibatalkan  (no dikirim)
 //
@@ -40,7 +40,7 @@ if (isset($_GET['updated'])) {
     $flash = match($_GET['error']) {
         'notfound' => 'Pesanan tidak ditemukan.',
         'invalid'  => 'Status tidak valid.',
-        'enum'     => 'Gagal memperbarui status. Pastikan migration SQL sudah dijalankan di database.',
+        'enum'     => 'Status tidak diperbarui.',
         default    => 'Terjadi kesalahan.',
     };
 }
@@ -66,8 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             );
             $upd->execute([$status_baru, $id_pembelian]);
 
-            // rowCount() = 0 means MySQL rejected the value (enum mismatch).
-            // Most likely cause: migration SQL has not been run yet.
             if ($upd->rowCount() === 0) {
                 header('Location: orders_seller.php?error=enum');
                 exit;
@@ -149,7 +147,7 @@ function metodeLabel(?string $metode): string {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <link href="../css/penjual.css" rel="stylesheet" />
   <style>
-    /* Extra badge colours not in penjual.css */
+
     .badge {
       display: inline-block;
       padding: 3px 12px;
@@ -379,8 +377,6 @@ function metodeLabel(?string $metode): string {
     <footer class="site-footer">
       <span>© LocalMart 2026</span>
     </footer>
-
   </div>
-
 </body>
 </html>

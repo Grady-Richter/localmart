@@ -41,17 +41,22 @@ if (!$produk) {
     exit;
 }
 
-$validKategori = ['makanan', 'minuman', 'perlengkapan mandi', 'perlengkapan dapur'];
-$error         = '';
-$success       = '';
+$defaultKategori = ['makanan', 'minuman', 'perlengkapan mandi', 'perlengkapan dapur'];
+$error           = '';
+$success         = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_produk = trim($_POST['nama_produk'] ?? '');
     $harga       = trim($_POST['harga']       ?? '');
     $stok        = trim($_POST['stok']        ?? '');
-    $kategori    = trim($_POST['kategori']    ?? '');
     $deskripsi   = trim($_POST['deskripsi']   ?? '');
-    $gambar      = $produk['gambar_produk'];   // Keep old image by default
+    $gambar      = $produk['gambar_produk'];
+
+    // Hybrid category
+    $kategori_select = trim($_POST['kategori_select'] ?? '');
+    $kategori_custom = trim($_POST['kategori_custom'] ?? '');
+    $kategori = ($kategori_select === 'lainnya') ? $kategori_custom : $kategori_select;
+    $kategori = ucwords($kategori);
 
     if ($nama_produk === '') {
         $error = 'Nama produk tidak boleh kosong.';
@@ -59,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Harga tidak valid.';
     } elseif (!is_numeric($stok) || (int)$stok < 0) {
         $error = 'Stok tidak valid.';
-    } elseif (!in_array($kategori, $validKategori)) {
-        $error = 'Kategori tidak valid.';
+    } elseif ($kategori === '') {
+        $error = 'Kategori tidak boleh kosong.';
     } else {
         // Handle new image upload (optional — only if a file was submitted)
         if (!empty($_FILES['foto_produk']['name'])) {
@@ -184,16 +189,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="kategori">Kategori</label>
+            <label class="form-label" for="kategori_select">Kategori</label>
             <?php
-              $selKategori = $_POST['kategori'] ?? $produk['kategori'];
+              // Determine if existing category is one of the defaults or custom
+              $currentKategori = $_POST['kategori_select'] ?? $produk['kategori'];
+              $currentCustom   = $_POST['kategori_custom'] ?? '';
+              $isCustom        = !in_array($currentKategori, $defaultKategori);
+              if ($isCustom && $currentCustom === '') {
+                  $currentCustom   = $currentKategori;
+                  $currentKategori = 'lainnya';
+              }
             ?>
-            <select class="form-input custom-select" id="kategori" name="kategori">
-              <option value="makanan"            <?= $selKategori === 'makanan'            ? 'selected' : '' ?>>Makanan</option>
-              <option value="minuman"            <?= $selKategori === 'minuman'            ? 'selected' : '' ?>>Minuman</option>
-              <option value="perlengkapan mandi" <?= $selKategori === 'perlengkapan mandi' ? 'selected' : '' ?>>Perlengkapan Mandi</option>
-              <option value="perlengkapan dapur" <?= $selKategori === 'perlengkapan dapur' ? 'selected' : '' ?>>Perlengkapan Dapur</option>
+            <select class="form-input custom-select" id="kategori_select"
+                    name="kategori_select" onchange="toggleKategori(this.value)">
+              <option value="makanan"            <?= $currentKategori === 'makanan'            ? 'selected' : '' ?>>Makanan</option>
+              <option value="minuman"            <?= $currentKategori === 'minuman'            ? 'selected' : '' ?>>Minuman</option>
+              <option value="perlengkapan mandi" <?= $currentKategori === 'perlengkapan mandi' ? 'selected' : '' ?>>Perlengkapan Mandi</option>
+              <option value="perlengkapan dapur" <?= $currentKategori === 'perlengkapan dapur' ? 'selected' : '' ?>>Perlengkapan Dapur</option>
+              <option value="lainnya"            <?= $currentKategori === 'lainnya'            ? 'selected' : '' ?>>Lainnya...</option>
             </select>
+            <input class="form-input" type="text" id="kategori_custom"
+                   name="kategori_custom"
+                   placeholder="Masukkan kategori kustom"
+                   value="<?= htmlspecialchars($currentCustom) ?>"
+                   style="margin-top:8px;display:<?= $currentKategori === 'lainnya' ? 'block' : 'none' ?>;" />
           </div>
 
           <div class="form-group">
@@ -231,6 +250,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         };
         reader.readAsDataURL(input.files[0]);
       }
+    }
+
+    function toggleKategori(val) {
+      const custom = document.getElementById('kategori_custom');
+      custom.style.display = (val === 'lainnya') ? 'block' : 'none';
+      if (val !== 'lainnya') custom.value = '';
     }
   </script>
 

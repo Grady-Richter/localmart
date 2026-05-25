@@ -594,6 +594,18 @@ html, body {
 .data-table tbody tr:hover { background: rgba(249,115,22,0.06); }
 .data-table tbody td  { padding: 10px 12px; text-align: center; color: #000; }
 
+/* ─── ALERT / FLASH MESSAGE ─────────────────────────────────── */
+.alert {
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
 /* ─── PAGINATION ────────────────────────────────────────────── */
 .pagination {
   display: flex;
