@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 25, 2026 at 01:26 AM
+-- Generation Time: May 25, 2026 at 03:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -59,10 +59,14 @@ INSERT INTO `pembelian` (`ID_pembelian`, `ID_user`, `ID_produk`, `ID_toko`, `tan
 (12, 1, 16, 10, '2026-05-21 14:34:42', 'beras 1kg', 3, 16000.00, 'selesai', 'diambil', 48000.00, NULL),
 (13, 1, 18, 12, '2026-05-21 14:43:32', 'Air Mineral 200L', 4, 3500.00, 'selesai', 'diambil', 14000.00, NULL),
 (14, 1, 17, 11, '2026-05-23 08:22:07', 'BERAS ASLI NGAWUR', 3, 67000.00, 'pending', 'diantar', 201000.00, 'Bekasi'),
-(15, 1, 16, 10, '2026-05-23 08:59:21', 'beras 1kg', 6, 16000.00, 'pending', 'diantar', 96000.00, 'Bekasi'),
-(16, 1, 16, 10, '2026-05-23 09:03:58', 'beras 1kg', 6, 16000.00, 'pending', 'diantar', 96000.00, 'Bekasi'),
-(17, 1, 16, 10, '2026-05-23 09:04:07', 'beras 1kg', 3, 16000.00, 'pending', 'diambil', 48000.00, NULL),
-(18, 1, 16, 10, '2026-05-23 09:04:11', 'beras 1kg', 3, 16000.00, 'pending', 'diambil', 48000.00, NULL);
+(15, 1, 16, 10, '2026-05-23 08:59:21', 'beras 1kg', 6, 16000.00, 'selesai', 'diantar', 96000.00, 'Bekasi'),
+(16, 1, 16, 10, '2026-05-23 09:03:58', 'beras 1kg', 6, 16000.00, 'selesai', 'diantar', 96000.00, 'Bekasi'),
+(17, 1, 16, 10, '2026-05-23 09:04:07', 'beras 1kg', 3, 16000.00, 'selesai', 'diambil', 48000.00, NULL),
+(18, 1, 16, 10, '2026-05-23 09:04:11', 'beras 1kg', 3, 16000.00, 'selesai', 'diambil', 48000.00, NULL),
+(19, 25, 10, 7, '2026-05-25 11:12:07', 'Cupcake', 1, 30000.00, 'selesai', 'diantar', 30000.00, 'rumah cacak asep jl joko anjay mabar'),
+(20, 1, 20, 1, '2026-05-25 12:40:30', 'Beras SInatola', 2, 15950.00, 'selesai', 'diantar', 31900.00, NULL),
+(21, 1, 16, 10, '2026-05-25 12:42:11', 'beras 1kg', 1, 16000.00, 'selesai', 'diambil', 16000.00, NULL),
+(22, 1, 16, 10, '2026-05-25 12:42:12', 'beras 1kg', 1, 16000.00, 'selesai', 'diantar', 16000.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -90,12 +94,14 @@ INSERT INTO `produk` (`ID_produk`, `ID_toko`, `nama_produk`, `deskripsi_produk`,
 (1, 1, 'Aqua Botol', 'Air Mineral 600ml', 'uploads/produk/produk_1_1776425626.jpg', 36, 3500.00, 'minuman', '2026-04-17 18:33:46'),
 (6, 6, 'Anak gw', 'Susah bet dibesarin kakinya patah 3 kali', 'uploads/produk/produk_6_1777863663.jpg', 1, 2999999900.00, 'perlengkapan mandi', '2026-05-04 10:00:48'),
 (9, 7, 'Teh Matcha', 'Minuman yang pahit, namun menyegarkanmu sampai bugar!', 'uploads/produk/produk_7_1778467843.png', 5, 70000.00, 'minuman', '2026-05-11 09:50:33'),
-(10, 7, 'Cupcake', 'Cupcake yang manis, membuatmu bahagia!', 'uploads/produk/produk_7_1778467891.jpg', 0, 30000.00, 'makanan', '2026-05-11 09:51:31'),
+(10, 7, 'Cupcake', 'Cupcake yang manis, membuatmu bahagia!', 'uploads/produk/produk_7_1778467891.jpg', 998, 30000.00, 'makanan', '2026-05-11 09:51:31'),
 (11, 7, 'Vita 20', 'Minuman suplemen yang membangkitkan semangatmu!', 'uploads/produk/produk_7_1778467988.png', 14, 35000.00, 'minuman', '2026-05-11 09:53:08'),
 (13, 6, 'Anak gw yang satunya', 'Minusnya punya asma', 'uploads/produk/produk_6_1778484224.jpg', 1, 4000000.00, 'perlengkapan dapur', '2026-05-11 14:23:44'),
-(16, 10, 'beras 1kg', 'Beras Sintanola 1kg', 'uploads/produk/produk_10_1779324630.jpeg', 19, 16000.00, 'makanan', '2026-05-21 07:47:49'),
+(16, 10, 'beras 1kg', 'Beras Sintanola 1kg', 'uploads/produk/produk_10_1779324630.jpeg', 17, 16000.00, 'makanan', '2026-05-21 07:47:49'),
 (17, 11, 'BERAS ASLI NGAWUR', 'Beras Sangat Wangi, Bisa Buat Cuci, Jemur, Gosok Gigi, Gooning, Makan', 'uploads/produk/produk_11_1779345236.jpeg', 60, 67000.00, 'makanan', '2026-05-21 13:33:56'),
-(18, 12, 'Air Mineral 200L', 'Air Mineral', NULL, 56, 3500.00, 'minuman', '2026-05-21 14:41:47');
+(18, 12, 'Air Mineral 200L', 'Air Mineral', NULL, 56, 3500.00, 'minuman', '2026-05-21 14:41:47'),
+(20, 1, 'Beras SInatola', 'Beras per 1kg', 'uploads/produk/produk_1_1779687065.jpeg', 21, 15950.00, 'Beras', '2026-05-25 12:31:05'),
+(21, 10, 'Oppy', 'muheehehe', 'uploads/produk/produk_10_1779715369.jpg', 60, 6000.00, 'Spesies Baru', '2026-05-25 20:22:49');
 
 -- --------------------------------------------------------
 
@@ -124,7 +130,7 @@ INSERT INTO `profil_toko` (`ID_toko`, `ID_user`, `nama_toko`, `deskripsi_toko`, 
 (1, 2, 'Toko Madura Stego', 'Testing', 'uploads/logo_toko/shop_2_1776425434.jpg', 'Sidokare Asri Blok I-3', 'Sidoarjo', '2026-04-17 18:30:34', 'diterima', NULL),
 (6, 9, 'Umamart', 'Ecwipse Firts The Rezt Nower', 'uploads/logo_toko/shop_9_1777876290.png', 'Jalan Jaran No-9', 'Tokyo', '2026-05-04 09:56:56', 'diterima', NULL),
 (7, 12, 'Fukukitaru Lucky Shop', 'hungya', 'uploads/logo_toko/shop_12_1778467475.png', 'Jalan Jaran No-12', 'Tokyo', '2026-05-11 09:44:35', 'diterima', NULL),
-(9, 21, 'Test', NULL, NULL, 'Test', 'Test', '2026-05-21 07:34:13', 'menunggu', NULL),
+(9, 21, 'Test', NULL, NULL, 'Test', 'Test', '2026-05-21 07:34:13', 'diterima', NULL),
 (10, 22, 'Toko madura barokah', NULL, NULL, 'Jalan raya, Ngaban, Tanggulangin', 'Sidoarjo', '2026-05-21 07:43:39', 'diterima', NULL),
 (11, 23, 'Toko', 'Toko Sangat GG Dan Sangat Gokil', 'uploads/logo_toko/shop_23_1779345052.jpg', 'Bulan', 'Ngawur', '2026-05-21 13:30:52', 'diterima', NULL),
 (12, 24, 'Toko Madura', 'Toko Madura', NULL, 'Sidokare Asri Blok I-3', 'Sidoarjo', '2026-05-21 14:39:11', 'diterima', NULL);
@@ -155,7 +161,8 @@ INSERT INTO `profil_user_pembeli` (`ID_user`, `foto_profil`, `nomor_telepon`, `a
 (15, 'uploads/profil_pembeli/buyer_15_1779161770.jpg', '0404-1996-2005', 'Tokyo Tracen Academy', 'Tokyo', '12345'),
 (17, 'uploads/profil_pembeli/buyer_17_1779250644.jpg', '+6281237869270', 'Pondok Sidokare Asri, Blok H-7, RT 46 RW 13', 'SIDOARJO', '61214'),
 (18, NULL, '+6281237869270', 'Pondok Sidokare Asri, Blok H-7, RT 46 RW 13', 'SIDOARJO', '61214'),
-(20, NULL, '6787656898667896', 'ngawi', 'ngawi', '6567865678');
+(20, NULL, '6787656898667896', 'ngawi', 'ngawi', '6567865678'),
+(25, NULL, '0821181818181818', 'jl joko anjay mabar', 'Lumina', '676767');
 
 -- --------------------------------------------------------
 
@@ -223,7 +230,8 @@ INSERT INTO `users` (`ID_user`, `role`, `username`, `password`, `created_at`) VA
 (21, 'penjual', 'PenjualHandal', '$2y$10$r/7gKf4kdYhNeyHnFxyj8u7F1a/ys8S7KjISGv/tsIg9TJ7zLRSse', '2026-05-21 07:07:14'),
 (22, 'penjual', 'ZidhanDaDann', '$2y$10$.vTbF9txTlB7GY3EXWJJc.s5Hfg9J5XAruabm8katTHntxniuVV2W', '2026-05-21 07:40:09'),
 (23, 'penjual', 'Username', '$2y$10$gzVQpXliRF43TTMDTx1w/eqUf8UJkAe/sPMjbPbAa9GmFLwUo3sIu', '2026-05-21 13:28:17'),
-(24, 'penjual', 'Penjualtoko', '$2y$10$T/Zmx.wIS.LOA4WoSX3aIe.wOJv5JoKpHg5xpAWZYJaU9iDGCvWte', '2026-05-21 14:37:52');
+(24, 'penjual', 'Penjualtoko', '$2y$10$T/Zmx.wIS.LOA4WoSX3aIe.wOJv5JoKpHg5xpAWZYJaU9iDGCvWte', '2026-05-21 14:37:52'),
+(25, 'pembeli', 'Keyvin', '$2y$10$/zIH/vG61A/DXy0ARG6S6.sg8Ik6wrT1g4Hkrtu3OBRJa7Gaw2Q/m', '2026-05-25 11:10:32');
 
 --
 -- Indexes for dumped tables
@@ -278,25 +286,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `pembelian`
 --
 ALTER TABLE `pembelian`
-  MODIFY `ID_pembelian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `ID_pembelian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `produk`
 --
 ALTER TABLE `produk`
-  MODIFY `ID_produk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `ID_produk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `profil_toko`
 --
 ALTER TABLE `profil_toko`
-  MODIFY `ID_toko` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `ID_toko` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `ID_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `ID_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- Constraints for dumped tables

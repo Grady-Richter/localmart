@@ -11,6 +11,7 @@
 // History = status IN (selesai, dibatalkan)
 session_start();
 require_once '../includes/koneksi.php';
+require_once '../includes/pagination.php';
 
 if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'penjual') {
     header('Location: ../login_penjual.php');
@@ -83,8 +84,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     }
 }
 
-// ── Fetch active orders ───────────────────────────────────────
-// Join users + profil_user_pembeli so we can show buyer name + address
+// ── Pagination ───────────────────────────────────────────────
+$perPage     = 10;
+$pageActive  = max(1, (int)($_GET['page_active']  ?? 1));
+$pageHistory = max(1, (int)($_GET['page_history'] ?? 1));
+
+// ── Count + fetch active orders (paginated) ───────────────────
+$cntA = $pdo->prepare("SELECT COUNT(*) FROM pembelian WHERE ID_toko = ? AND status_pembelian IN ('pending','diproses','dikirim')");
+$cntA->execute([$ID_toko]);
+$totalActive      = (int)$cntA->fetchColumn();
+$totalPagesActive = max(1, (int)ceil($totalActive / $perPage));
+$pageActive       = min($pageActive, $totalPagesActive);
+$offsetActive     = ($pageActive - 1) * $perPage;
+
 $activeStmt = $pdo->prepare(
     "SELECT pb.*,
             u.username,
@@ -95,12 +107,20 @@ $activeStmt = $pdo->prepare(
      LEFT JOIN profil_user_pembeli pup ON pup.ID_user = pb.ID_user
      WHERE pb.ID_toko = ?
        AND pb.status_pembelian IN ('pending','diproses','dikirim')
-     ORDER BY pb.tanggal_pembelian ASC"
+     ORDER BY pb.tanggal_pembelian ASC
+     LIMIT $perPage OFFSET $offsetActive"
 );
 $activeStmt->execute([$ID_toko]);
 $activeOrders = $activeStmt->fetchAll();
 
-// ── Fetch order history ───────────────────────────────────────
+// ── Count + fetch order history (paginated) ───────────────────
+$cntH = $pdo->prepare("SELECT COUNT(*) FROM pembelian WHERE ID_toko = ? AND status_pembelian IN ('selesai','dibatalkan')");
+$cntH->execute([$ID_toko]);
+$totalHistory      = (int)$cntH->fetchColumn();
+$totalPagesHistory = max(1, (int)ceil($totalHistory / $perPage));
+$pageHistory       = min($pageHistory, $totalPagesHistory);
+$offsetHistory     = ($pageHistory - 1) * $perPage;
+
 $historyStmt = $pdo->prepare(
     "SELECT pb.*,
             u.username,
@@ -111,7 +131,8 @@ $historyStmt = $pdo->prepare(
      LEFT JOIN profil_user_pembeli pup ON pup.ID_user = pb.ID_user
      WHERE pb.ID_toko = ?
        AND pb.status_pembelian IN ('selesai','dibatalkan')
-     ORDER BY pb.tanggal_pembelian DESC"
+     ORDER BY pb.tanggal_pembelian DESC
+     LIMIT $perPage OFFSET $offsetHistory"
 );
 $historyStmt->execute([$ID_toko]);
 $historyOrders = $historyStmt->fetchAll();
@@ -318,6 +339,11 @@ function metodeLabel(?string $metode): string {
         </div>
       </div>
 
+      <?php echo renderPagination($pageActive, $totalPagesActive, function($o) {
+        $p = array_filter(['page_active' => $o['page'] ?? '1', 'page_history' => (string)($_GET['page_history'] ?? '1')], fn($v) => $v !== '' && $v !== '1');
+        return 'orders_seller.php' . ($p ? '?' . http_build_query($p) : '');
+      }); ?>
+
       <!-- ══════════════════════════════════════════════════════
            ORDER HISTORY
       ══════════════════════════════════════════════════════ -->
@@ -371,6 +397,11 @@ function metodeLabel(?string $metode): string {
           </table>
         </div>
       </div>
+
+      <?php echo renderPagination($pageHistory, $totalPagesHistory, function($o) {
+        $p = array_filter(['page_active' => (string)($_GET['page_active'] ?? '1'), 'page_history' => $o['page'] ?? '1'], fn($v) => $v !== '' && $v !== '1');
+        return 'orders_seller.php' . ($p ? '?' . http_build_query($p) : '');
+      }); ?>
 
     </main>
 

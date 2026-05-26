@@ -4,6 +4,7 @@
 // Supports tab switching: all / penjual / pembeli via ?tab= query param.
 session_start();
 require_once '../includes/koneksi.php';
+require_once '../includes/pagination.php';
 
 if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../login_admin.php');
@@ -11,13 +12,30 @@ if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'admin') {
 }
 
 // ── Fetch all non-admin users with their profile photos ───────
+$perPage      = 10;
+$pagePenjual  = max(1, (int)($_GET['page_penjual'] ?? 1));
+$pagePembeli  = max(1, (int)($_GET['page_pembeli'] ?? 1));
+
+// Count totals
+$totalPenjual = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role = 'penjual'")->fetchColumn();
+$totalPembeli = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role = 'pembeli'")->fetchColumn();
+$totalUsers   = $totalPenjual + $totalPembeli;
+
+$totalPagesPenjual = max(1, (int)ceil($totalPenjual / $perPage));
+$totalPagesPembeli = max(1, (int)ceil($totalPembeli / $perPage));
+$pagePenjual = min($pagePenjual, $totalPagesPenjual);
+$pagePembeli = min($pagePembeli, $totalPagesPembeli);
+$offsetPenjual = ($pagePenjual - 1) * $perPage;
+$offsetPembeli = ($pagePembeli - 1) * $perPage;
+
 $penjualStmt = $pdo->query(
     "SELECT u.ID_user, u.username, u.created_at,
             pup.foto_profil
      FROM users u
      LEFT JOIN profil_user_penjual pup ON pup.ID_user = u.ID_user
      WHERE u.role = 'penjual'
-     ORDER BY u.created_at DESC"
+     ORDER BY u.created_at DESC
+     LIMIT $perPage OFFSET $offsetPenjual"
 );
 $penjualUsers = $penjualStmt->fetchAll();
 
@@ -27,13 +45,10 @@ $pembeliStmt = $pdo->query(
      FROM users u
      LEFT JOIN profil_user_pembeli pub ON pub.ID_user = u.ID_user
      WHERE u.role = 'pembeli'
-     ORDER BY u.created_at DESC"
+     ORDER BY u.created_at DESC
+     LIMIT $perPage OFFSET $offsetPembeli"
 );
 $pembeliUsers = $pembeliStmt->fetchAll();
-
-$totalPenjual = count($penjualUsers);
-$totalPembeli = count($pembeliUsers);
-$totalUsers   = $totalPenjual + $totalPembeli;
 
 // ── Active tab ────────────────────────────────────────────────
 $validTabs = ['all', 'penjual', 'pembeli'];

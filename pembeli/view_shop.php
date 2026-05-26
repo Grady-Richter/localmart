@@ -5,6 +5,7 @@
 // Products can be filtered by category via ?kategori=<value>.
 session_start();
 require_once '../includes/koneksi.php';
+require_once '../includes/pagination.php';
 
 if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'pembeli') {
     header('Location: ../login_pembeli.php');
@@ -44,17 +45,33 @@ $catStmt = $pdo->prepare('SELECT DISTINCT kategori FROM produk WHERE ID_toko = ?
 $catStmt->execute([$ID_toko]);
 $shopKategori = $catStmt->fetchAll(PDO::FETCH_COLUMN);
 
-// Build product query
-if ($kategoriFilter && in_array($kategoriFilter, $validKategori)) {
+// Pagination
+$perPage    = 10;
+$page       = max(1, (int)($_GET['page'] ?? 1));
+
+// Count + fetch products (paginated)
+if ($kategoriFilter) {
+    $cntStmt = $pdo->prepare('SELECT COUNT(*) FROM produk WHERE ID_toko = ? AND kategori = ? AND stok_produk > 0');
+    $cntStmt->execute([$ID_toko, $kategoriFilter]);
+} else {
+    $cntStmt = $pdo->prepare('SELECT COUNT(*) FROM produk WHERE ID_toko = ? AND stok_produk > 0');
+    $cntStmt->execute([$ID_toko]);
+}
+$totalProduk = (int)$cntStmt->fetchColumn();
+$totalPages  = max(1, (int)ceil($totalProduk / $perPage));
+$page        = min($page, $totalPages);
+$offset      = ($page - 1) * $perPage;
+
+if ($kategoriFilter) {
     $produkStmt = $pdo->prepare(
-        'SELECT * FROM produk WHERE ID_toko = ? AND kategori = ? AND stok_produk > 0
-         ORDER BY nama_produk ASC'
+        "SELECT * FROM produk WHERE ID_toko = ? AND kategori = ? AND stok_produk > 0
+         ORDER BY nama_produk ASC LIMIT $perPage OFFSET $offset"
     );
     $produkStmt->execute([$ID_toko, $kategoriFilter]);
 } else {
     $produkStmt = $pdo->prepare(
-        'SELECT * FROM produk WHERE ID_toko = ? AND stok_produk > 0
-         ORDER BY nama_produk ASC'
+        "SELECT * FROM produk WHERE ID_toko = ? AND stok_produk > 0
+         ORDER BY nama_produk ASC LIMIT $perPage OFFSET $offset"
     );
     $produkStmt->execute([$ID_toko]);
 }
@@ -160,6 +177,12 @@ $produk = $produkStmt->fetchAll();
         <?php endif; ?>
 
       </div>
+
+      <?php echo renderPagination($page, $totalPages, function($o) use ($ID_toko, $kategoriFilter) {
+        $p = array_filter(['id' => (string)$ID_toko, 'kategori' => $kategoriFilter, 'page' => $o['page'] ?? '1'], fn($v) => $v !== '' && $v !== '1');
+        return 'view_shop.php' . ($p ? '?' . http_build_query($p) : '');
+      }); ?>
+
     </main>
 
     <footer class="site-footer">

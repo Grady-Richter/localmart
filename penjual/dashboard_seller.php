@@ -5,6 +5,7 @@
 // Handles product deletion via POST action=hapus&id_produk=X.
 session_start();
 require_once '../includes/koneksi.php';
+require_once '../includes/pagination.php';
 
 if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'penjual') {
     header('Location: ../login_penjual.php');
@@ -61,6 +62,10 @@ if ($status === 'diterima'
 
 // Fetch products (only needed for verified sellers)
 $daftarProduk  = [];
+$totalProduk   = 0;
+$totalPages    = 1;
+$page          = max(1, (int)($_GET['page'] ?? 1));
+$perPage       = 10;
 $kategoriLabel = [
     'makanan'            => 'Makanan',
     'minuman'            => 'Minuman',
@@ -80,7 +85,14 @@ $sort    = $_GET['sort'] ?? 'terbaru';
 $orderBy = $sortOptions[$sort] ?? $sortOptions['terbaru'];
 
 if ($status === 'diterima') {
-    // LEFT JOIN pembelian to get total sold per product
+    // Count total for pagination
+    $countStmt = $pdo->prepare('SELECT COUNT(*) FROM produk WHERE ID_toko = ?');
+    $countStmt->execute([$ID_toko]);
+    $totalProduk = (int)$countStmt->fetchColumn();
+    $totalPages  = max(1, (int)ceil($totalProduk / $perPage));
+    $page        = min($page, $totalPages);
+    $offset      = ($page - 1) * $perPage;
+
     $produkStmt = $pdo->prepare(
         "SELECT p.*,
                 COALESCE(SUM(pb.jumlah), 0) AS total_terjual
@@ -88,7 +100,8 @@ if ($status === 'diterima') {
          LEFT JOIN pembelian pb ON pb.ID_produk = p.ID_produk
          WHERE p.ID_toko = ?
          GROUP BY p.ID_produk
-         ORDER BY $orderBy"
+         ORDER BY $orderBy
+         LIMIT $perPage OFFSET $offset"
     );
     $produkStmt->execute([$ID_toko]);
     $daftarProduk = $produkStmt->fetchAll();
@@ -282,6 +295,15 @@ if ($status === 'diterima') {
         <input type="hidden" name="action" value="hapus" />
         <input type="hidden" name="id_produk" id="deleteProductId" value="" />
       </form>
+
+      <!-- Pagination -->
+      <?php
+        echo renderPagination($page, $totalPages, function($overrides) use ($sort) {
+            $params = array_filter(['sort' => $sort, 'page' => $overrides['page'] ?? '1'],
+                fn($v) => $v !== '' && $v !== '1' && $v !== 'terbaru');
+            return 'dashboard_seller.php' . ($params ? '?' . http_build_query($params) : '');
+        });
+      ?>
 
     </main>
 

@@ -6,6 +6,7 @@
 // Clicking a shop name redirects to view_shop.php?id=<ID_toko>
 session_start();
 require_once '../includes/koneksi.php';
+require_once '../includes/pagination.php';
 
 if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'pembeli') {
     header('Location: ../login_pembeli.php');
@@ -14,27 +15,57 @@ if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'pembeli') {
 
 $ID_user = $_SESSION['ID_user'];
 
-// ── Fetch active orders ───────────────────────────────────────
-// Joins profil_toko so we can show shop name as a link
+// ── Pagination params ────────────────────────────────────────
+$perPage      = 10;
+$pageActive   = max(1, (int)($_GET['page_active']  ?? 1));
+$pageHistory  = max(1, (int)($_GET['page_history'] ?? 1));
+
+// ── Fetch active orders (paginated) ──────────────────────────
+$countActive = (int)$pdo->prepare(
+    "SELECT COUNT(*) FROM pembelian pb
+     JOIN profil_toko pt ON pt.ID_toko = pb.ID_toko
+     WHERE pb.ID_user = ? AND pb.status_pembelian IN ('pending','diproses','dikirim')"
+)->execute([$ID_user]) ? $pdo->prepare(
+    "SELECT COUNT(*) FROM pembelian pb
+     JOIN profil_toko pt ON pt.ID_toko = pb.ID_toko
+     WHERE pb.ID_user = ? AND pb.status_pembelian IN ('pending','diproses','dikirim')"
+) : 0;
+// Simpler approach:
+$cntA = $pdo->prepare("SELECT COUNT(*) FROM pembelian WHERE ID_user = ? AND status_pembelian IN ('pending','diproses','dikirim')");
+$cntA->execute([$ID_user]);
+$totalActive   = (int)$cntA->fetchColumn();
+$totalPagesActive  = max(1, (int)ceil($totalActive / $perPage));
+$pageActive    = min($pageActive, $totalPagesActive);
+$offsetActive  = ($pageActive - 1) * $perPage;
+
 $activeStmt = $pdo->prepare(
     "SELECT pb.*, pt.nama_toko, pt.ID_toko
      FROM pembelian pb
      JOIN profil_toko pt ON pt.ID_toko = pb.ID_toko
      WHERE pb.ID_user = ?
        AND pb.status_pembelian IN ('pending','diproses','dikirim')
-     ORDER BY pb.tanggal_pembelian DESC"
+     ORDER BY pb.tanggal_pembelian DESC
+     LIMIT $perPage OFFSET $offsetActive"
 );
 $activeStmt->execute([$ID_user]);
 $activeOrders = $activeStmt->fetchAll();
 
-// ── Fetch order history ───────────────────────────────────────
+// ── Fetch order history (paginated) ──────────────────────────
+$cntH = $pdo->prepare("SELECT COUNT(*) FROM pembelian WHERE ID_user = ? AND status_pembelian IN ('selesai','dibatalkan')");
+$cntH->execute([$ID_user]);
+$totalHistory  = (int)$cntH->fetchColumn();
+$totalPagesHistory = max(1, (int)ceil($totalHistory / $perPage));
+$pageHistory   = min($pageHistory, $totalPagesHistory);
+$offsetHistory = ($pageHistory - 1) * $perPage;
+
 $historyStmt = $pdo->prepare(
     "SELECT pb.*, pt.nama_toko, pt.ID_toko
      FROM pembelian pb
      JOIN profil_toko pt ON pt.ID_toko = pb.ID_toko
      WHERE pb.ID_user = ?
        AND pb.status_pembelian IN ('selesai','dibatalkan')
-     ORDER BY pb.tanggal_pembelian DESC"
+     ORDER BY pb.tanggal_pembelian DESC
+     LIMIT $perPage OFFSET $offsetHistory"
 );
 $historyStmt->execute([$ID_user]);
 $historyOrders = $historyStmt->fetchAll();
@@ -164,6 +195,11 @@ function metodeLabel(string $metode): string {
         </div>
       </div>
 
+      <?php echo renderPagination($pageActive, $totalPagesActive, function($o) {
+        $p = array_filter(['page_active' => $o['page'] ?? '1', 'page_history' => (string)($_GET['page_history'] ?? '1')], fn($v) => $v !== '' && $v !== '1');
+        return 'orders_buyer.php' . ($p ? '?' . http_build_query($p) : '');
+      }); ?>
+
       <!-- ══════════════════════════════════════════════════════
            ORDER HISTORY
       ══════════════════════════════════════════════════════ -->
@@ -213,6 +249,11 @@ function metodeLabel(string $metode): string {
           </table>
         </div>
       </div>
+
+      <?php echo renderPagination($pageHistory, $totalPagesHistory, function($o) {
+        $p = array_filter(['page_active' => (string)($_GET['page_active'] ?? '1'), 'page_history' => $o['page'] ?? '1'], fn($v) => $v !== '' && $v !== '1');
+        return 'orders_buyer.php' . ($p ? '?' . http_build_query($p) : '');
+      }); ?>
 
     </main>
 

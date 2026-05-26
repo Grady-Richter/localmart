@@ -4,6 +4,7 @@
 // Design: Figma admin_dashboard export.
 session_start();
 require_once '../includes/koneksi.php';
+require_once '../includes/pagination.php';
 
 if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../login_admin.php');
@@ -46,10 +47,17 @@ $shops = $pdo->query(
 $counts = ['menunggu' => 0, 'diterima' => 0, 'ditolak' => 0];
 foreach ($shops as $s) $counts[$s['status_verifikasi']]++;
 
-$filter   = $_GET['filter'] ?? 'semua';
-$filtered = ($filter === 'semua')
+$filter     = $_GET['filter'] ?? 'semua';
+$allFiltered = ($filter === 'semua')
     ? $shops
-    : array_filter($shops, fn($s) => $s['status_verifikasi'] === $filter);
+    : array_values(array_filter($shops, fn($s) => $s['status_verifikasi'] === $filter));
+
+$perPage    = 10;
+$page       = max(1, (int)($_GET['page'] ?? 1));
+$totalPages = max(1, (int)ceil(count($allFiltered) / $perPage));
+$page       = min($page, $totalPages);
+$offset     = ($page - 1) * $perPage;
+$filtered   = array_slice($allFiltered, $offset, $perPage);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -206,6 +214,11 @@ Kota: <?= htmlspecialchars($shop['kota'] ?? '-') ?><br>
       </div>
       <?php endforeach; ?>
     <?php endif; ?>
+
+    <?php echo renderPagination($page, $totalPages, function($o) use ($filter) {
+        $p = array_filter(['filter' => $filter, 'page' => $o['page'] ?? '1'], fn($v) => $v !== '' && $v !== '1' && $v !== 'semua');
+        return 'dashboard_admin.php' . ($p ? '?' . http_build_query($p) : '');
+    }); ?>
 
   </main>
 

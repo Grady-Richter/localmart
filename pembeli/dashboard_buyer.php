@@ -6,6 +6,7 @@
 //  - Shop list with search + dynamic category dropdown + pagination
 session_start();
 require_once '../includes/koneksi.php';
+require_once '../includes/pagination.php';
 
 if (!isset($_SESSION['ID_user']) || $_SESSION['role'] !== 'pembeli') {
     header('Location: ../login_pembeli.php');
@@ -271,7 +272,9 @@ function buildUrl(array $overrides = []): string {
                  placeholder="Cari nama toko atau kota..."
                  value="<?= htmlspecialchars($search) ?>" />
           <button type="submit"
-                  style="background:none;border:none;cursor:pointer;padding:0;"><img src="../images/assets/search-icon.png" alt="Search" style="width:23px;height:23px;" /></button>
+                  style="background:none;border:none;cursor:pointer;padding:0;">
+            <img src="../images/assets/search-icon.png" alt="Search" style="width:2px;height:23px;" />
+          </button>
         </div>
       </form>
 
@@ -413,41 +416,10 @@ function buildUrl(array $overrides = []): string {
         </div>
         <?php endforeach; ?>
 
-        <!-- Pagination -->
-        <?php if ($totalPages > 1): ?>
-        <div class="pagination">
-          <?php if ($page > 1): ?>
-            <a href="<?= buildUrl(['page' => (string)($page - 1)]) ?>">← Prev</a>
-          <?php else: ?>
-            <span class="disabled">← Prev</span>
-          <?php endif; ?>
+        <?php echo renderPagination($page, $totalPages, 'buildUrl'); ?>
 
-          <?php
-          $start = max(1, $page - 2);
-          $end   = min($totalPages, $page + 2);
-          if ($start > 1): ?><a href="<?= buildUrl(['page' => '1']) ?>">1</a><?php endif;
-          if ($start > 2): ?><span class="disabled">…</span><?php endif;
-          for ($i = $start; $i <= $end; $i++):
-            if ($i === $page): ?>
-              <span class="current"><?= $i ?></span>
-            <?php else: ?>
-              <a href="<?= buildUrl(['page' => (string)$i]) ?>"><?= $i ?></a>
-            <?php endif;
-          endfor;
-          if ($end < $totalPages - 1): ?><span class="disabled">…</span><?php endif;
-          if ($end < $totalPages): ?><a href="<?= buildUrl(['page' => (string)$totalPages]) ?>"><?= $totalPages ?></a><?php endif;
-          ?>
-
-          <?php if ($page < $totalPages): ?>
-            <a href="<?= buildUrl(['page' => (string)($page + 1)]) ?>">Next →</a>
-          <?php else: ?>
-            <span class="disabled">Next →</span>
-          <?php endif; ?>
         </div>
         <?php endif; ?>
-
-      <?php endif; ?>
-
     </main>
 
     <footer class="site-footer">
