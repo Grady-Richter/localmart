@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="page-wrapper">
 
     <header class="site-header">
-      <a href="../landing_page.html" class="site-header__logo">
+      <a href="../index.html" class="site-header__logo">
         <div class="site-header__logo-box"><span>LocalMart</span></div>
       </a>
       <nav class="site-header__nav">

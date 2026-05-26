@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="page-bg"></div>
 
   <header class="site-header">
-    <a href="landing_page.php" class="logo-box" style="text-decoration:none;">
+    <a href="index.html" class="logo-box" style="text-decoration:none;">
       <span>LocalMart</span>
     </a>
   </header>
